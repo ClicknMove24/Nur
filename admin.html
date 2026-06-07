@@ -59,9 +59,30 @@
     .howto { font-size: 0.88rem; background: rgba(217,161,59,0.18); border-right: 4px solid var(--mustard); padding: 0.9rem 1.1rem; border-radius: 3px; }
     .howto b { color: var(--orange); }
     @media (max-width: 640px) { .card { grid-template-columns: 1fr; } .grid2, .card__row { grid-template-columns: 1fr; } }
+
+    .lock { position: fixed; inset: 0; z-index: 100; background: var(--green); display: flex; align-items: center; justify-content: center; padding: 1.5rem; }
+    .lock__card { background: var(--white); border: 1.5px solid #6b5743; box-shadow: 8px 8px 0 var(--mustard); padding: 2.6rem 2.4rem; max-width: 380px; width: 100%; text-align: center; transform: rotate(-0.6deg); }
+    .lock__card h1 { font-family: 'Karantina', cursive; font-weight: 700; font-size: 2.6rem; line-height: 1; }
+    .lock__card p { font-size: 0.9rem; color: rgba(43,33,24,0.65); margin: 0.4rem 0 1.4rem; }
+    .lock__card input { width: 100%; text-align: center; font-size: 1.1rem; margin-bottom: 1rem; }
+    .lock__card button { width: 100%; background: var(--orange); color: var(--white); font-weight: 700; padding: 0.6rem; }
+    .lock__err { color: #a8442e; font-family: 'Special Elite', monospace; font-size: 0.8rem; min-height: 1.2em; }
+    body.locked { overflow: hidden; }
+    body.locked main, body.locked .savebar, body.locked .top { filter: blur(7px); pointer-events: none; }
   </style>
 </head>
-<body>
+<body class="locked">
+  <!-- password gate (client-side: hides the editor from casual visitors) -->
+  <div class="lock" id="lock">
+    <div class="lock__card">
+      <h1>הכניסה של נור</h1>
+      <p>הממשק הזה פרטי. הקלידי את הסיסמה כדי להמשיך.</p>
+      <input type="password" id="lockPass" placeholder="סיסמה" autocomplete="current-password">
+      <button type="button" id="lockBtn">כניסה ✶</button>
+      <p class="lock__err" id="lockErr"></p>
+    </div>
+  </div>
+
   <header class="top">
     <h1>ממשק העריכה של נור</h1>
     <span>✶ חוט למחשבה ✶ admin</span>
@@ -70,31 +91,8 @@
   <main>
     <div class="howto">
       <b>איך זה עובד:</b> עורכים כאן (נשמר אוטומטית כטיוטה) ← <b>תצוגה מקדימה</b> לראות את האתר עם השינויים (רק אצלך) ←
-      כשהכל מושלם, <b>פרסום לאתר ✶</b> — והאתר מתעדכן לבד תוך כדקה (GitHub ← Vercel).
+      כשהכל מושלם, <b>הורדת קובץ לאתר</b> ומחליפים את <b dir="ltr">assets/data/content.js</b> באתר.
     </div>
-
-    <section class="panel">
-      <h2>חיבור לאתר (GitHub)</h2>
-      <p class="hint">
-        ממלאים פעם אחת; נשמר רק בדפדפן הזה. את ה-Token יוצרים בגיטהאב:
-        Settings ← Developer settings ← Fine-grained tokens ← New token ←
-        בוחרים רק את הריפו של האתר ← תחת Permissions נותנים ל-<b>Contents</b> הרשאת <b>Read and write</b>.
-      </p>
-      <div class="grid2">
-        <label>משתמש GitHub (owner)
-          <input type="text" id="gh-owner" dir="ltr" placeholder="noor-studio">
-        </label>
-        <label>שם הריפו (repo)
-          <input type="text" id="gh-repo" dir="ltr" placeholder="noor-site">
-        </label>
-        <label>ענף (branch)
-          <input type="text" id="gh-branch" dir="ltr" placeholder="main">
-        </label>
-        <label>Token (סודי — נשאר רק אצלך)
-          <input type="password" id="gh-token" dir="ltr" placeholder="github_pat_...">
-        </label>
-      </div>
-    </section>
 
     <section class="panel">
       <h2>הגדרות כלליות</h2>
@@ -166,10 +164,42 @@
   <div class="savebar">
     <span class="savebar__status" id="status">טיוטה נטענה</span>
     <button class="btn btn--preview" id="previewBtn">תצוגה מקדימה ✶</button>
-    <button class="btn btn--download" id="publishBtn">פרסום לאתר ✶</button>
-    <button class="btn btn--preview" id="downloadBtn" style="opacity:0.8">גיבוי: הורדת קובץ ⬇</button>
+    <button class="btn btn--download" id="downloadBtn">הורדת קובץ לאתר ⬇</button>
     <button class="btn btn--del" id="resetBtn">איפוס לגרסה שבאתר</button>
   </div>
+
+  <script>
+    // ===== password gate =====
+    // הסיסמה הנוכחית: noor — לשנות: מחליפים את ה-hash למטה (SHA-256 של הסיסמה החדשה).
+    const PASS_HASH = '92a70799e19d8734fecfb8e59aa930e9f386f7645059a1f2f04eb8483c9b5f1d';
+    const lock = document.getElementById('lock');
+    async function sha256(s) {
+      const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(s));
+      return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, '0')).join('');
+    }
+    function unlock() {
+      lock.style.display = 'none';
+      document.body.classList.remove('locked');
+    }
+    (function () {
+      let ok = false;
+      try { ok = sessionStorage.getItem('noorAdminOk') === '1'; } catch (e) {}
+      if (ok) { unlock(); return; }
+      const tryPass = async () => {
+        const v = document.getElementById('lockPass').value;
+        if (await sha256(v) === PASS_HASH) {
+          try { sessionStorage.setItem('noorAdminOk', '1'); } catch (e) {}
+          unlock();
+        } else {
+          document.getElementById('lockErr').textContent = 'סיסמה שגויה. נסי שוב.';
+          document.getElementById('lockPass').value = '';
+        }
+      };
+      document.getElementById('lockBtn').addEventListener('click', tryPass);
+      document.getElementById('lockPass').addEventListener('keydown', (e) => { if (e.key === 'Enter') tryPass(); });
+      document.getElementById('lockPass').focus();
+    })();
+  </script>
 
   <script src="assets/data/content.js"></script>
   <script>
@@ -205,98 +235,9 @@
       el.addEventListener('input', () => { data.settings[k] = el.value.trim(); saveDraft(); });
     });
 
-    // ---- GitHub connection (publish straight from the browser; Vercel redeploys) ----
-    const GH_KEY = 'noorGithubCfg';
-    let gh;
-    try { gh = JSON.parse(localStorage.getItem(GH_KEY)) || {}; } catch (e) { gh = {}; }
-    ['owner', 'repo', 'branch', 'token'].forEach((k) => {
-      const el = document.getElementById('gh-' + k);
-      el.value = gh[k] || (k === 'branch' ? 'main' : '');
-      gh[k] = el.value.trim();
-      el.addEventListener('input', () => { gh[k] = el.value.trim(); localStorage.setItem(GH_KEY, JSON.stringify(gh)); });
-    });
-    localStorage.setItem(GH_KEY, JSON.stringify(gh));
-    const ghReady = () => gh.owner && gh.repo && gh.token;
-
-    function toB64(buf) {
-      const arr = new Uint8Array(buf);
-      let s = '';
-      for (let i = 0; i < arr.length; i += 0x8000) s += String.fromCharCode.apply(null, arr.subarray(i, i + 0x8000));
-      return btoa(s);
-    }
-
-    async function ghPut(path, buf, message) {
-      const base = 'https://api.github.com/repos/' + gh.owner + '/' + gh.repo + '/contents/' + path;
-      const branch = gh.branch || 'main';
-      const headers = { 'Authorization': 'Bearer ' + gh.token, 'Accept': 'application/vnd.github+json' };
-      let sha;
-      const head = await fetch(base + '?ref=' + branch, { headers });
-      if (head.ok) sha = (await head.json()).sha;
-      const body = { message: message, content: toB64(buf), branch: branch };
-      if (sha) body.sha = sha;
-      const put = await fetch(base, { method: 'PUT', headers: headers, body: JSON.stringify(body) });
-      if (!put.ok) {
-        let msg = put.status;
-        try { msg = (await put.json()).message || msg; } catch (e) {}
-        throw new Error(msg);
-      }
-    }
-
     function contentFileText() {
       const header = '// ✶ חוט למחשבה — קובץ התוכן של האתר ✶\n// הקובץ הזה נערך דרך admin.html — אין צורך לגעת בו ידנית.\n';
       return header + 'window.NOOR_CONTENT = ' + JSON.stringify(data, null, 2) + ';\n';
-    }
-
-    document.getElementById('publishBtn').onclick = async () => {
-      if (!ghReady()) { alert('רגע — קודם ממלאים את פרטי GitHub בפאנל "חיבור לאתר".'); return; }
-      if (!confirm('לפרסם את השינויים לאתר החי?')) return;
-      statusEl.textContent = 'מפרסם...';
-      try {
-        await ghPut('assets/data/content.js', new TextEncoder().encode(contentFileText()), 'עדכון תוכן מהממשק של נור ✶');
-        statusEl.textContent = 'פורסם! האתר מתעדכן תוך כדקה ✶';
-      } catch (e) {
-        statusEl.textContent = 'שגיאה: ' + e.message;
-        alert('הפרסום נכשל: ' + e.message + '\nבודקים: שם משתמש/ריפו נכונים? ל-Token יש הרשאת Contents: Read and write?');
-      }
-    };
-
-    // image upload — straight into assets/img on GitHub
-    function uploadButton(ch) {
-      const wrap = document.createElement('span');
-      const btn = document.createElement('button');
-      btn.type = 'button';
-      btn.className = 'btn btn--move';
-      btn.textContent = 'העלאת תמונה ⬆';
-      const inp = document.createElement('input');
-      inp.type = 'file';
-      inp.accept = 'image/jpeg,image/png,image/webp';
-      inp.hidden = true;
-      btn.onclick = () => {
-        if (!ghReady()) { alert('להעלאת תמונה ממלאים קודם את פרטי GitHub בפאנל "חיבור לאתר".'); return; }
-        inp.click();
-      };
-      inp.onchange = async () => {
-        const f = inp.files[0];
-        if (!f) return;
-        const ext = (f.name.split('.').pop() || 'jpg').toLowerCase();
-        const safe = f.name.replace(/\.[^.]+$/, '').toLowerCase().replace(/[^a-z0-9-]+/g, '-').replace(/^-+|-+$/g, '') || 'char';
-        const name = safe + '-' + Date.now().toString(36) + '.' + ext;
-        statusEl.textContent = 'מעלה תמונה...';
-        btn.disabled = true;
-        try {
-          await ghPut('assets/img/' + name, await f.arrayBuffer(), 'העלאת תמונה: ' + name);
-          ch.img = name;
-          saveDraft(); renderChars(); renderWaiting();
-          statusEl.textContent = 'התמונה עלתה ✶ (תופיע אחרי הפרסום הבא)';
-        } catch (e) {
-          statusEl.textContent = 'שגיאה בהעלאה: ' + e.message;
-          alert('ההעלאה נכשלה: ' + e.message);
-        }
-        btn.disabled = false;
-      };
-      wrap.appendChild(btn);
-      wrap.appendChild(inp);
-      return wrap;
     }
 
     // ---- generic list editor ----
@@ -344,7 +285,6 @@
 
         const actions = document.createElement('div');
         actions.className = 'card__actions';
-        actions.appendChild(uploadButton(ch));
         const del = document.createElement('button');
         del.className = 'btn btn--del';
         del.textContent = 'מחיקה';
@@ -399,7 +339,6 @@
         del.className = 'btn btn--del';
         del.textContent = 'מחיקה';
         del.onclick = () => { if (confirm('למחוק את ' + (ch.name || 'הדמות') + '?')) { data.waiting.splice(i, 1); saveDraft(); renderWaiting(); } };
-        actions.appendChild(uploadButton(ch));
         actions.appendChild(move);
         actions.appendChild(del);
         fields.appendChild(actions);
@@ -445,7 +384,6 @@
         fields.appendChild(field('"כרגע:" (סטטוס מצמרר)', ch.status, v => ch.status = v));
         const actions = document.createElement('div');
         actions.className = 'card__actions';
-        actions.appendChild(uploadButton(ch));
         const del = document.createElement('button');
         del.className = 'btn btn--del';
         del.textContent = 'מחיקה';

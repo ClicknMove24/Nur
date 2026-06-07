@@ -1003,6 +1003,17 @@ img { display: block; max-width: 100%; }
   border-bottom: 2px solid var(--orange);
 }
 .footer__links a:hover { color: var(--mustard); }
+.footer__admin {
+  display: inline-block;
+  margin-top: 2rem;
+  font-family: var(--type);
+  font-size: 0.72rem;
+  letter-spacing: 0.15em;
+  color: rgba(241, 232, 218, 0.35);
+  text-decoration: none;
+  transition: color 0.3s;
+}
+.footer__admin:hover { color: var(--mustard); }
 
 /* ---------- purposeful motion ---------- */
 

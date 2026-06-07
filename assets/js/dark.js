@@ -60,7 +60,7 @@ const esc = (s) => String(s == null ? '' : s)
   set('darkLaw', DARK.law);
   set('darkWarning', DARK.warning);
   const at = document.getElementById('aboutTitle');
-  if (at && DARK.aboutTitle) at.textContent = DARK.aboutTitle;
+  if (at && DARK.aboutTitle) at.innerHTML = DARK.aboutTitle;
   const ab = document.getElementById('aboutBody');
   if (ab && DARK.aboutBody) {
     ab.innerHTML = String(DARK.aboutBody).split('\n').filter(Boolean)

@@ -324,38 +324,33 @@ img { display: block; max-width: 100%; }
 /* ---------- about noor (dark) ---------- */
 
 .about-dark {
-  max-width: 1050px;
+  max-width: 680px;
   margin: 0 auto;
-  padding: 5rem 2rem 6rem;
-  display: grid;
-  grid-template-columns: minmax(260px, 360px) 1fr;
-  gap: 4rem;
-  align-items: center;
+  padding: 7rem 2rem;
+  text-align: center;
 }
-.about-dark__photo { width: 100%; }
-.about-dark__photo .hand { font-size: 1.4rem; text-align: center; line-height: 1.15; color: var(--bone-dim); }
-.about-dark__eyebrow { display: block; color: var(--blood-bright); letter-spacing: 0.3em; margin-bottom: 0.8rem; }
+.about-dark__eyebrow { display: block; color: var(--blood-bright); letter-spacing: 0.4em; margin-bottom: 1.4rem; }
 .about-dark__title {
   font-family: var(--display);
   font-weight: 700;
-  font-size: clamp(2.4rem, 5.5vw, 4rem);
-  line-height: 1;
-  margin-bottom: 1.4rem;
+  font-size: clamp(2.8rem, 8vw, 5.5rem);
+  line-height: 0.95;
+  margin-bottom: 2rem;
   color: var(--bone);
 }
-.about-dark__body p { font-size: 1.12rem; color: var(--bone-dim); max-width: 34rem; }
-.about-dark__body p + p { margin-top: 1rem; }
+.about-dark__title em { font-style: normal; color: var(--blood-bright); }
+.about-dark__body p { font-size: 1.2rem; color: var(--bone-dim); max-width: 32rem; margin: 0 auto; }
+.about-dark__body p + p { margin-top: 0.9rem; }
 .about-dark__sign {
   display: inline-block;
-  margin-top: 1.6rem;
+  margin-top: 1.8rem;
   font-size: 1.5rem;
   color: var(--blood-bright);
   transform: rotate(-2deg);
 }
 
-@media (max-width: 800px) {
-  .about-dark { grid-template-columns: 1fr; gap: 2.5rem; }
-  .about-dark__photo { max-width: 340px; margin: 0 auto; }
+@media (max-width: 640px) {
+  .about-dark { padding: 4.5rem 1.5rem; }
 }
 
 /* ---------- the ritual / contract form ---------- */
