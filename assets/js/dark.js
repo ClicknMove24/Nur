@@ -59,6 +59,13 @@ const esc = (s) => String(s == null ? '' : s)
   const set = (id, val) => { const el = document.getElementById(id); if (el && val) el.innerHTML = val; };
   set('darkLaw', DARK.law);
   set('darkWarning', DARK.warning);
+  const at = document.getElementById('aboutTitle');
+  if (at && DARK.aboutTitle) at.textContent = DARK.aboutTitle;
+  const ab = document.getElementById('aboutBody');
+  if (ab && DARK.aboutBody) {
+    ab.innerHTML = String(DARK.aboutBody).split('\n').filter(Boolean)
+      .map((p) => '<p>' + esc(p) + '</p>').join('');
+  }
 })();
 
 // ---- the contract form ----

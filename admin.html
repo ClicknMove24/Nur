@@ -116,6 +116,17 @@
     </section>
 
     <section class="panel">
+      <h2>על נור</h2>
+      <p class="hint">המקטע "על נור" באתר. כתוב בגוף ראשון (נור מדברת). כל שורה ריקה = פסקה חדשה.</p>
+      <label>כותרת
+        <input type="text" id="about-title">
+      </label>
+      <label style="margin-top:1rem">הטקסט (אנטר = פסקה חדשה)
+        <textarea id="about-body" rows="6"></textarea>
+      </label>
+    </section>
+
+    <section class="panel">
       <h2>הדמויות של נור (שכבר אומצו)</h2>
       <p class="hint">אלו הדמויות בגלריה הראשית. תמונות: לשמור את הקובץ בתיקייה assets/img ולרשום כאן את שם הקובץ.</p>
       <div id="charList"></div>
@@ -138,6 +149,12 @@
         </label>
         <label>האזהרה (בתחתית)
           <textarea id="d-warning" rows="2"></textarea>
+        </label>
+        <label>"על נור" אפל — כותרת
+          <input type="text" id="d-aboutTitle">
+        </label>
+        <label>"על נור" אפל — טקסט (גוף שלישי, אנטר = פסקה)
+          <textarea id="d-aboutBody" rows="4"></textarea>
         </label>
       </div>
       <h3 style="font-family:'Karantina',cursive;font-size:1.6rem;margin:1.4rem 0 0.4rem;">אלה שלא אומצו</h3>
@@ -166,7 +183,8 @@
     data.settings = data.settings || {};
     data.characters = data.characters || [];
     data.waiting = data.waiting || [];
-    data.dark = data.dark || { law: '', warning: '' };
+    data.about = data.about || { title: '', body: '' };
+    data.dark = data.dark || { law: '', warning: '', aboutTitle: '', aboutBody: '' };
     data.darkCharacters = data.darkCharacters || [];
 
     let saveTimer = null;
@@ -391,8 +409,15 @@
       });
     }
 
+    // ---- about (light) ----
+    ['title', 'body'].forEach((k) => {
+      const el = document.getElementById('about-' + k);
+      el.value = data.about[k] || '';
+      el.addEventListener('input', () => { data.about[k] = el.value; saveDraft(); });
+    });
+
     // ---- dark side ----
-    ['law', 'warning'].forEach((k) => {
+    ['law', 'warning', 'aboutTitle', 'aboutBody'].forEach((k) => {
       const el = document.getElementById('d-' + k);
       el.value = data.dark[k] || '';
       el.addEventListener('input', () => { data.dark[k] = el.value; saveDraft(); });

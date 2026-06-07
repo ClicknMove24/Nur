@@ -621,6 +621,46 @@ img { display: block; max-width: 100%; }
 /* waiting stamp — green, hopeful, not yet red */
 .stamp--wait { color: var(--green); border-color: var(--green); }
 
+/* ---------- about noor ---------- */
+
+.about {
+  max-width: 1050px;
+  margin: 0 auto;
+  padding: 5rem 2rem 7rem;
+  display: grid;
+  grid-template-columns: minmax(260px, 360px) 1fr;
+  gap: 4rem;
+  align-items: center;
+}
+.about__photo { width: 100%; }
+.about__photo .hand { font-size: 1.4rem; text-align: center; line-height: 1.15; }
+.about__eyebrow {
+  display: block;
+  color: var(--orange);
+  letter-spacing: 0.3em;
+  margin-bottom: 0.8rem;
+}
+.about__title {
+  font-family: var(--display);
+  font-weight: 700;
+  font-size: clamp(2.4rem, 5.5vw, 4rem);
+  line-height: 1;
+  margin-bottom: 1.4rem;
+}
+.about__body p {
+  font-size: 1.12rem;
+  color: rgba(43, 33, 24, 0.85);
+  max-width: 34rem;
+}
+.about__body p + p { margin-top: 1rem; }
+.about__sign {
+  display: inline-block;
+  margin-top: 1.6rem;
+  font-size: 1.8rem;
+  color: var(--orange);
+  transform: rotate(-2deg);
+}
+
 /* ---------- why / green block ---------- */
 
 .why {
@@ -999,6 +1039,8 @@ img { display: block; max-width: 100%; }
   .scrapbook .polaroid:nth-child(even) { margin-top: 1.8rem; }
   .why__inner { grid-template-columns: 1fr; gap: 3rem; }
   .why__polaroid { max-width: 340px; margin: 0 auto; }
+  .about { grid-template-columns: 1fr; gap: 2.5rem; }
+  .about__photo { max-width: 340px; margin: 0 auto; }
 }
 
 @media (max-width: 640px) {

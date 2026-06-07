@@ -68,6 +68,16 @@ const esc = (s) => String(s == null ? '' : s)
   if (price && s.priceFrom) price.textContent = s.priceFrom;
   if (lead && s.leadTime) lead.textContent = s.leadTime;
 
+  // about section (title + paragraphs split on newlines)
+  const about = CONTENT.about || {};
+  const aboutTitle = document.getElementById('aboutTitle');
+  const aboutBody = document.getElementById('aboutBody');
+  if (aboutTitle && about.title) aboutTitle.textContent = about.title;
+  if (aboutBody && about.body) {
+    aboutBody.innerHTML = String(about.body).split('\n').filter(Boolean)
+      .map((p) => '<p>' + esc(p) + '</p>').join('');
+  }
+
   const waFooter = document.getElementById('waLink');
   if (waFooter) waFooter.href = 'https://wa.me/' + WHATSAPP_NUMBER;
 
