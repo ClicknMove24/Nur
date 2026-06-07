@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ממשק העריכה ✶ חוט למחשבה</title>
+  <meta name="robots" content="noindex">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Karantina:wght@400;700&family=Amatic+SC:wght@700&family=Miriam+Libre:wght@400;700&family=Special+Elite&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --paper: #f0e6d2; --ink: #2b2118; --orange: #c95d1e;
+      --mustard: #d9a13b; --green: #35523c; --white: #faf6ec;
+      --line: rgba(43, 33, 24, 0.35);
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { background: var(--paper); color: var(--ink); font-family: 'Miriam Libre', serif; line-height: 1.6; padding-bottom: 7rem; }
+    .top { background: var(--green); color: var(--paper); padding: 1.4rem 2rem; display: flex; align-items: baseline; gap: 1rem; flex-wrap: wrap; }
+    .top h1 { font-family: 'Karantina', cursive; font-size: 2.6rem; line-height: 1; font-weight: 700; }
+    .top span { font-family: 'Special Elite', monospace; font-size: 0.78rem; color: var(--mustard); }
+    main { max-width: 920px; margin: 0 auto; padding: 2rem 1.2rem; display: flex; flex-direction: column; gap: 2.5rem; }
+
+    .panel { background: var(--white); border: 1.5px solid #6b5743; box-shadow: 6px 6px 0 var(--mustard); padding: 1.8rem; }
+    .panel > h2 { font-family: 'Karantina', cursive; font-weight: 700; font-size: 2.2rem; line-height: 1; margin-bottom: 0.3rem; }
+    .panel > .hint { font-size: 0.85rem; color: rgba(43,33,24,0.6); margin-bottom: 1.2rem; }
+
+    .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+    label { display: flex; flex-direction: column; gap: 0.25rem; font-family: 'Amatic SC', cursive; font-weight: 700; font-size: 1.25rem; }
+    input, textarea { border: 1px solid var(--line); background: var(--paper); font-family: 'Miriam Libre', serif; font-size: 0.95rem; padding: 0.5rem 0.7rem; color: var(--ink); border-radius: 3px; }
+    input:focus, textarea:focus { outline: none; border-color: var(--orange); }
+    textarea { resize: vertical; }
+
+    .card { border: 1px dashed var(--line); border-radius: 4px; padding: 1.2rem; margin-bottom: 1.2rem; display: grid; grid-template-columns: 110px 1fr; gap: 1.2rem; background: var(--white); }
+    .card__thumb { width: 110px; height: 110px; object-fit: cover; border: 3px solid var(--white); box-shadow: 0 3px 10px rgba(0,0,0,0.25); background: var(--paper); }
+    .card__fields { display: flex; flex-direction: column; gap: 0.7rem; }
+    .card__row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.8rem; }
+    .card__actions { grid-column: 1 / -1; display: flex; gap: 0.8rem; justify-content: flex-end; flex-wrap: wrap; }
+
+    button { cursor: pointer; font-family: 'Miriam Libre', serif; }
+    .btn { border: none; padding: 0.5rem 1.2rem; font-size: 0.95rem; border-radius: 3px; transition: transform 0.12s; }
+    .btn:hover { transform: translateY(-1px); }
+    .btn--add { background: var(--green); color: var(--paper); }
+    .btn--del { background: transparent; color: #a8442e; border: 1px solid #a8442e; }
+    .btn--move { background: var(--mustard); color: var(--ink); }
+
+    .savebar { position: fixed; bottom: 0; right: 0; left: 0; background: var(--ink); padding: 0.9rem 1.5rem; display: flex; gap: 1rem; align-items: center; justify-content: center; flex-wrap: wrap; z-index: 10; }
+    .savebar .btn { font-size: 1.05rem; padding: 0.6rem 1.6rem; }
+    .btn--preview { background: var(--mustard); color: var(--ink); }
+    .btn--download { background: var(--orange); color: var(--white); font-weight: 700; }
+    .savebar__status { font-family: 'Special Elite', monospace; font-size: 0.75rem; color: var(--paper); opacity: 0.75; min-width: 9rem; text-align: center; }
+
+    .howto { font-size: 0.88rem; background: rgba(217,161,59,0.18); border-right: 4px solid var(--mustard); padding: 0.9rem 1.1rem; border-radius: 3px; }
+    .howto b { color: var(--orange); }
+    @media (max-width: 640px) { .card { grid-template-columns: 1fr; } .grid2, .card__row { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+  <header class="top">
+    <h1>ממשק העריכה של נור</h1>
+    <span>✶ חוט למחשבה ✶ admin</span>
+  </header>
+
+  <main>
+    <div class="howto">
+      <b>איך זה עובד:</b> עורכים כאן (נשמר אוטומטית כטיוטה) ← <b>תצוגה מקדימה</b> לראות את האתר עם השינויים (רק אצלך) ←
+      כשהכל מושלם, <b>פרסום לאתר ✶</b> — והאתר מתעדכן לבד תוך כדקה (GitHub ← Vercel).
+    </div>
+
+    <section class="panel">
+      <h2>חיבור לאתר (GitHub)</h2>
+      <p class="hint">
+        ממלאים פעם אחת; נשמר רק בדפדפן הזה. את ה-Token יוצרים בגיטהאב:
+        Settings ← Developer settings ← Fine-grained tokens ← New token ←
+        בוחרים רק את הריפו של האתר ← תחת Permissions נותנים ל-<b>Contents</b> הרשאת <b>Read and write</b>.
+      </p>
+      <div class="grid2">
+        <label>משתמש GitHub (owner)
+          <input type="text" id="gh-owner" dir="ltr" placeholder="noor-studio">
+        </label>
+        <label>שם הריפו (repo)
+          <input type="text" id="gh-repo" dir="ltr" placeholder="noor-site">
+        </label>
+        <label>ענף (branch)
+          <input type="text" id="gh-branch" dir="ltr" placeholder="main">
+        </label>
+        <label>Token (סודי — נשאר רק אצלך)
+          <input type="password" id="gh-token" dir="ltr" placeholder="github_pat_...">
+        </label>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>הגדרות כלליות</h2>
+      <p class="hint">המספר בפורמט בינלאומי: 0548690829 ← 972548690829</p>
+      <div class="grid2">
+        <label>וואטסאפ (לטפסים ולכפתורי האימוץ)
+          <input type="text" id="s-whatsapp" dir="ltr">
+        </label>
+        <label>קישור אינסטגרם
+          <input type="text" id="s-instagram" dir="ltr" placeholder="https://instagram.com/...">
+        </label>
+        <label>מחיר התחלתי (למשל: 350 ₪)
+          <input type="text" id="s-priceFrom" placeholder="___">
+        </label>
+        <label>זמן יצירה (למשל: 3 שבועות)
+          <input type="text" id="s-leadTime" placeholder="___">
+        </label>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>הדמויות של נור (שכבר אומצו)</h2>
+      <p class="hint">אלו הדמויות בגלריה הראשית. תמונות: לשמור את הקובץ בתיקייה assets/img ולרשום כאן את שם הקובץ.</p>
+      <div id="charList"></div>
+      <button class="btn btn--add" id="addChar">+ הוספת דמות שאומצה</button>
+    </section>
+
+    <section class="panel">
+      <h2>מחכים לאימוץ</h2>
+      <p class="hint">הדמויות שזמינות עכשיו. כשדמות מאומצת — ממלאים "מי אימץ" ולוחצים "אומץ ✓" והיא עוברת לגלריה הראשית.</p>
+      <div id="waitList"></div>
+      <button class="btn btn--add" id="addWait">+ הוספת דמות שמחכה</button>
+    </section>
+  </main>
+
+  <div class="savebar">
+    <span class="savebar__status" id="status">טיוטה נטענה</span>
+    <button class="btn btn--preview" id="previewBtn">תצוגה מקדימה ✶</button>
+    <button class="btn btn--download" id="publishBtn">פרסום לאתר ✶</button>
+    <button class="btn btn--preview" id="downloadBtn" style="opacity:0.8">גיבוי: הורדת קובץ ⬇</button>
+    <button class="btn btn--del" id="resetBtn">איפוס לגרסה שבאתר</button>
+  </div>
+
+  <script src="assets/data/content.js"></script>
+  <script>
+    const DRAFT_KEY = 'noorContentDraft';
+    const statusEl = document.getElementById('status');
+
+    // deep copy of published content, or the saved draft
+    let data;
+    try { data = JSON.parse(localStorage.getItem(DRAFT_KEY)) || null; } catch (e) { data = null; }
+    if (!data) data = JSON.parse(JSON.stringify(window.NOOR_CONTENT || { settings: {}, characters: [], waiting: [] }));
+    data.settings = data.settings || {};
+    data.characters = data.characters || [];
+    data.waiting = data.waiting || [];
+
+    let saveTimer = null;
+    function saveDraft() {
+      clearTimeout(saveTimer);
+      saveTimer = setTimeout(() => {
+        localStorage.setItem(DRAFT_KEY, JSON.stringify(data));
+        statusEl.textContent = 'הטיוטה נשמרה ✶';
+      }, 400);
+      statusEl.textContent = 'שומר...';
+    }
+
+    // ---- settings ----
+    const sFields = ['whatsapp', 'instagram', 'priceFrom', 'leadTime'];
+    sFields.forEach((k) => {
+      const el = document.getElementById('s-' + k);
+      el.value = data.settings[k] || '';
+      el.addEventListener('input', () => { data.settings[k] = el.value.trim(); saveDraft(); });
+    });
+
+    // ---- GitHub connection (publish straight from the browser; Vercel redeploys) ----
+    const GH_KEY = 'noorGithubCfg';
+    let gh;
+    try { gh = JSON.parse(localStorage.getItem(GH_KEY)) || {}; } catch (e) { gh = {}; }
+    ['owner', 'repo', 'branch', 'token'].forEach((k) => {
+      const el = document.getElementById('gh-' + k);
+      el.value = gh[k] || (k === 'branch' ? 'main' : '');
+      gh[k] = el.value.trim();
+      el.addEventListener('input', () => { gh[k] = el.value.trim(); localStorage.setItem(GH_KEY, JSON.stringify(gh)); });
+    });
+    localStorage.setItem(GH_KEY, JSON.stringify(gh));
+    const ghReady = () => gh.owner && gh.repo && gh.token;
+
+    function toB64(buf) {
+      const arr = new Uint8Array(buf);
+      let s = '';
+      for (let i = 0; i < arr.length; i += 0x8000) s += String.fromCharCode.apply(null, arr.subarray(i, i + 0x8000));
+      return btoa(s);
+    }
+
+    async function ghPut(path, buf, message) {
+      const base = 'https://api.github.com/repos/' + gh.owner + '/' + gh.repo + '/contents/' + path;
+      const branch = gh.branch || 'main';
+      const headers = { 'Authorization': 'Bearer ' + gh.token, 'Accept': 'application/vnd.github+json' };
+      let sha;
+      const head = await fetch(base + '?ref=' + branch, { headers });
+      if (head.ok) sha = (await head.json()).sha;
+      const body = { message: message, content: toB64(buf), branch: branch };
+      if (sha) body.sha = sha;
+      const put = await fetch(base, { method: 'PUT', headers: headers, body: JSON.stringify(body) });
+      if (!put.ok) {
+        let msg = put.status;
+        try { msg = (await put.json()).message || msg; } catch (e) {}
+        throw new Error(msg);
+      }
+    }
+
+    function contentFileText() {
+      const header = '// ✶ חוט למחשבה — קובץ התוכן של האתר ✶\n// הקובץ הזה נערך דרך admin.html — אין צורך לגעת בו ידנית.\n';
+      return header + 'window.NOOR_CONTENT = ' + JSON.stringify(data, null, 2) + ';\n';
+    }
+
+    document.getElementById('publishBtn').onclick = async () => {
+      if (!ghReady()) { alert('רגע — קודם ממלאים את פרטי GitHub בפאנל "חיבור לאתר".'); return; }
+      if (!confirm('לפרסם את השינויים לאתר החי?')) return;
+      statusEl.textContent = 'מפרסם...';
+      try {
+        await ghPut('assets/data/content.js', new TextEncoder().encode(contentFileText()), 'עדכון תוכן מהממשק של נור ✶');
+        statusEl.textContent = 'פורסם! האתר מתעדכן תוך כדקה ✶';
+      } catch (e) {
+        statusEl.textContent = 'שגיאה: ' + e.message;
+        alert('הפרסום נכשל: ' + e.message + '\nבודקים: שם משתמש/ריפו נכונים? ל-Token יש הרשאת Contents: Read and write?');
+      }
+    };
+
+    // image upload — straight into assets/img on GitHub
+    function uploadButton(ch) {
+      const wrap = document.createElement('span');
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'btn btn--move';
+      btn.textContent = 'העלאת תמונה ⬆';
+      const inp = document.createElement('input');
+      inp.type = 'file';
+      inp.accept = 'image/jpeg,image/png,image/webp';
+      inp.hidden = true;
+      btn.onclick = () => {
+        if (!ghReady()) { alert('להעלאת תמונה ממלאים קודם את פרטי GitHub בפאנל "חיבור לאתר".'); return; }
+        inp.click();
+      };
+      inp.onchange = async () => {
+        const f = inp.files[0];
+        if (!f) return;
+        const ext = (f.name.split('.').pop() || 'jpg').toLowerCase();
+        const safe = f.name.replace(/\.[^.]+$/, '').toLowerCase().replace(/[^a-z0-9-]+/g, '-').replace(/^-+|-+$/g, '') || 'char';
+        const name = safe + '-' + Date.now().toString(36) + '.' + ext;
+        statusEl.textContent = 'מעלה תמונה...';
+        btn.disabled = true;
+        try {
+          await ghPut('assets/img/' + name, await f.arrayBuffer(), 'העלאת תמונה: ' + name);
+          ch.img = name;
+          saveDraft(); renderChars(); renderWaiting();
+          statusEl.textContent = 'התמונה עלתה ✶ (תופיע אחרי הפרסום הבא)';
+        } catch (e) {
+          statusEl.textContent = 'שגיאה בהעלאה: ' + e.message;
+          alert('ההעלאה נכשלה: ' + e.message);
+        }
+        btn.disabled = false;
+      };
+      wrap.appendChild(btn);
+      wrap.appendChild(inp);
+      return wrap;
+    }
+
+    // ---- generic list editor ----
+    function field(labelText, value, onInput, opts) {
+      const lab = document.createElement('label');
+      lab.textContent = labelText;
+      const el = document.createElement(opts && opts.textarea ? 'textarea' : 'input');
+      if (opts && opts.textarea) el.rows = 2;
+      el.value = value || '';
+      if (opts && opts.ltr) el.dir = 'ltr';
+      el.addEventListener('input', () => { onInput(el.value); saveDraft(); });
+      lab.appendChild(el);
+      return lab;
+    }
+
+    function thumb(img) {
+      const t = document.createElement('img');
+      t.className = 'card__thumb';
+      t.src = 'assets/img/' + (img || '');
+      t.onerror = () => { t.style.opacity = 0.25; };
+      return t;
+    }
+
+    function renderChars() {
+      const box = document.getElementById('charList');
+      box.innerHTML = '';
+      data.characters.forEach((ch, i) => {
+        const card = document.createElement('div');
+        card.className = 'card';
+        const t = thumb(ch.img);
+        card.appendChild(t);
+
+        const fields = document.createElement('div');
+        fields.className = 'card__fields';
+        const row1 = document.createElement('div'); row1.className = 'card__row';
+        row1.appendChild(field('שם הדמות', ch.name, v => ch.name = v));
+        row1.appendChild(field('שם קובץ התמונה', ch.img, v => { ch.img = v.trim(); t.src = 'assets/img/' + v.trim(); t.style.opacity = 1; }, { ltr: true }));
+        fields.appendChild(row1);
+        fields.appendChild(field('הסיפור (שורה-שתיים)', ch.story, v => ch.story = v, { textarea: true }));
+        const row2 = document.createElement('div'); row2.className = 'card__row';
+        row2.appendChild(field('בועת מחשבה (מה היא אומרת ב-hover)', ch.bubble, v => ch.bubble = v));
+        row2.appendChild(field('"כרגע:" (סטטוס קטן)', ch.status, v => ch.status = v));
+        fields.appendChild(row2);
+        fields.appendChild(field('מי אימץ (שם פרטי / משפחה)', ch.owner, v => ch.owner = v));
+
+        const actions = document.createElement('div');
+        actions.className = 'card__actions';
+        actions.appendChild(uploadButton(ch));
+        const del = document.createElement('button');
+        del.className = 'btn btn--del';
+        del.textContent = 'מחיקה';
+        del.onclick = () => { if (confirm('למחוק את ' + (ch.name || 'הדמות') + '?')) { data.characters.splice(i, 1); saveDraft(); renderChars(); } };
+        actions.appendChild(del);
+        fields.appendChild(actions);
+
+        card.appendChild(fields);
+        box.appendChild(card);
+      });
+    }
+
+    function renderWaiting() {
+      const box = document.getElementById('waitList');
+      box.innerHTML = '';
+      data.waiting.forEach((ch, i) => {
+        const card = document.createElement('div');
+        card.className = 'card';
+        const t = thumb(ch.img);
+        card.appendChild(t);
+
+        const fields = document.createElement('div');
+        fields.className = 'card__fields';
+        const row1 = document.createElement('div'); row1.className = 'card__row';
+        row1.appendChild(field('שם הדמות', ch.name, v => ch.name = v));
+        row1.appendChild(field('שם קובץ התמונה', ch.img, v => { ch.img = v.trim(); t.src = 'assets/img/' + v.trim(); t.style.opacity = 1; }, { ltr: true }));
+        fields.appendChild(row1);
+        fields.appendChild(field('הסיפור (שורה-שתיים)', ch.story, v => ch.story = v, { textarea: true }));
+        const row2 = document.createElement('div'); row2.className = 'card__row';
+        row2.appendChild(field('בועת מחשבה', ch.bubble, v => ch.bubble = v));
+        row2.appendChild(field('חותמת (מחפש/ת/ים בית ✶)', ch.stamp, v => ch.stamp = v));
+        fields.appendChild(row2);
+        const row3 = document.createElement('div'); row3.className = 'card__row';
+        row3.appendChild(field('שם בהודעת הוואטסאפ (אם שונה)', ch.adoptName, v => ch.adoptName = v));
+        const ownerField = field('מי אימץ? (למילוי לפני ההעברה)', '', v => card.dataset.owner = v);
+        row3.appendChild(ownerField);
+        fields.appendChild(row3);
+
+        const actions = document.createElement('div');
+        actions.className = 'card__actions';
+        const move = document.createElement('button');
+        move.className = 'btn btn--move';
+        move.textContent = 'אומץ ✓ העבר לגלריה';
+        move.onclick = () => {
+          const owner = (card.dataset.owner || '').trim();
+          if (!owner) { alert('רגע — מי אימץ? ממלאים את השדה "מי אימץ?" ואז מעבירים.'); return; }
+          data.characters.push({ img: ch.img, name: ch.name, story: ch.story, bubble: ch.bubble, status: '', owner: owner });
+          data.waiting.splice(i, 1);
+          saveDraft(); renderChars(); renderWaiting();
+        };
+        const del = document.createElement('button');
+        del.className = 'btn btn--del';
+        del.textContent = 'מחיקה';
+        del.onclick = () => { if (confirm('למחוק את ' + (ch.name || 'הדמות') + '?')) { data.waiting.splice(i, 1); saveDraft(); renderWaiting(); } };
+        actions.appendChild(uploadButton(ch));
+        actions.appendChild(move);
+        actions.appendChild(del);
+        fields.appendChild(actions);
+
+        card.appendChild(fields);
+        box.appendChild(card);
+      });
+    }
+
+    document.getElementById('addChar').onclick = () => {
+      data.characters.push({ img: '', name: '', story: '', bubble: '', status: '', owner: '' });
+      saveDraft(); renderChars();
+    };
+    document.getElementById('addWait').onclick = () => {
+      data.waiting.push({ img: '', name: '', story: '', bubble: '', stamp: 'מחפש בית ✶', adoptName: '' });
+      saveDraft(); renderWaiting();
+    };
+
+    // ---- actions ----
+    document.getElementById('previewBtn').onclick = () => {
+      localStorage.setItem(DRAFT_KEY, JSON.stringify(data));
+      window.open('index.html?preview=1', '_blank');
+    };
+
+    document.getElementById('downloadBtn').onclick = () => {
+      const header = '// ✶ חוט למחשבה — קובץ התוכן של האתר ✶\n// הקובץ הזה נערך דרך admin.html — אין צורך לגעת בו ידנית.\n';
+      const text = header + 'window.NOOR_CONTENT = ' + JSON.stringify(data, null, 2) + ';\n';
+      const blob = new Blob([text], { type: 'text/javascript;charset=utf-8' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = 'content.js';
+      a.click();
+      URL.revokeObjectURL(a.href);
+      statusEl.textContent = 'הקובץ ירד ✶ להחליף ב-assets/data/';
+    };
+
+    document.getElementById('resetBtn').onclick = () => {
+      if (!confirm('לאפס את כל השינויים ולחזור לגרסה שבאתר?')) return;
+      localStorage.removeItem(DRAFT_KEY);
+      location.reload();
+    };
+
+    renderChars();
+    renderWaiting();
+  </script>
+</body>
+</html>
