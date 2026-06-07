@@ -50,6 +50,12 @@
     .btn--download { background: var(--orange); color: var(--white); font-weight: 700; }
     .savebar__status { font-family: 'Special Elite', monospace; font-size: 0.75rem; color: var(--paper); opacity: 0.75; min-width: 9rem; text-align: center; }
 
+    .panel--dark { background: #1a1620; color: #cfc7b8; border-color: #7e1d1d; box-shadow: 6px 6px 0 #7e1d1d; }
+    .panel--dark h2, .panel--dark h3 { color: #cfc7b8; }
+    .panel--dark .hint { color: rgba(207,199,184,0.6); }
+    .panel--dark label { color: #cfc7b8; }
+    .panel--dark input, .panel--dark textarea { background: #0f0c14; color: #cfc7b8; border-color: rgba(207,199,184,0.3); }
+    .panel--dark .card { background: #0f0c14; border-color: rgba(207,199,184,0.25); }
     .howto { font-size: 0.88rem; background: rgba(217,161,59,0.18); border-right: 4px solid var(--mustard); padding: 0.9rem 1.1rem; border-radius: 3px; }
     .howto b { color: var(--orange); }
     @media (max-width: 640px) { .card { grid-template-columns: 1fr; } .grid2, .card__row { grid-template-columns: 1fr; } }
@@ -122,6 +128,22 @@
       <div id="waitList"></div>
       <button class="btn btn--add" id="addWait">+ הוספת דמות שמחכה</button>
     </section>
+
+    <section class="panel panel--dark">
+      <h2>🕯 הצד האפל</h2>
+      <p class="hint">העמוד <b dir="ltr">dark.html</b>. הדמויות, החוקים והאזהרה. אפשר HTML פשוט בשדות הטקסט (למשל &lt;em&gt;מילה&lt;/em&gt; לאדום, &lt;br&gt; לשורה).</p>
+      <div class="grid2">
+        <label>משפט החוק (בראש העמוד)
+          <textarea id="d-law" rows="2"></textarea>
+        </label>
+        <label>האזהרה (בתחתית)
+          <textarea id="d-warning" rows="2"></textarea>
+        </label>
+      </div>
+      <h3 style="font-family:'Karantina',cursive;font-size:1.6rem;margin:1.4rem 0 0.4rem;">אלה שלא אומצו</h3>
+      <div id="darkList"></div>
+      <button class="btn btn--add" id="addDark">+ הוספת דמות אפלה</button>
+    </section>
   </main>
 
   <div class="savebar">
@@ -140,10 +162,12 @@
     // deep copy of published content, or the saved draft
     let data;
     try { data = JSON.parse(localStorage.getItem(DRAFT_KEY)) || null; } catch (e) { data = null; }
-    if (!data) data = JSON.parse(JSON.stringify(window.NOOR_CONTENT || { settings: {}, characters: [], waiting: [] }));
+    if (!data) data = JSON.parse(JSON.stringify(window.NOOR_CONTENT || {}));
     data.settings = data.settings || {};
     data.characters = data.characters || [];
     data.waiting = data.waiting || [];
+    data.dark = data.dark || { law: '', warning: '' };
+    data.darkCharacters = data.darkCharacters || [];
 
     let saveTimer = null;
     function saveDraft() {
@@ -367,6 +391,52 @@
       });
     }
 
+    // ---- dark side ----
+    ['law', 'warning'].forEach((k) => {
+      const el = document.getElementById('d-' + k);
+      el.value = data.dark[k] || '';
+      el.addEventListener('input', () => { data.dark[k] = el.value; saveDraft(); });
+    });
+
+    function renderDark() {
+      const box = document.getElementById('darkList');
+      box.innerHTML = '';
+      data.darkCharacters.forEach((ch, i) => {
+        const card = document.createElement('div');
+        card.className = 'card';
+        const t = thumb(ch.img);
+        card.appendChild(t);
+        const fields = document.createElement('div');
+        fields.className = 'card__fields';
+        const row1 = document.createElement('div'); row1.className = 'card__row';
+        row1.appendChild(field('שם הדמות', ch.name, v => ch.name = v));
+        row1.appendChild(field('שם קובץ התמונה', ch.img, v => { ch.img = v.trim(); t.src = 'assets/img/' + v.trim(); t.style.opacity = 1; }, { ltr: true }));
+        fields.appendChild(row1);
+        fields.appendChild(field('הסיפור האפל', ch.story, v => ch.story = v, { textarea: true }));
+        const row2 = document.createElement('div'); row2.className = 'card__row';
+        row2.appendChild(field('לחישה (ב-hover)', ch.bubble, v => ch.bubble = v));
+        row2.appendChild(field('חותמת (ננטש/אבד ✶)', ch.stamp, v => ch.stamp = v));
+        fields.appendChild(row2);
+        fields.appendChild(field('"כרגע:" (סטטוס מצמרר)', ch.status, v => ch.status = v));
+        const actions = document.createElement('div');
+        actions.className = 'card__actions';
+        actions.appendChild(uploadButton(ch));
+        const del = document.createElement('button');
+        del.className = 'btn btn--del';
+        del.textContent = 'מחיקה';
+        del.onclick = () => { if (confirm('למחוק את ' + (ch.name || 'הדמות') + '?')) { data.darkCharacters.splice(i, 1); saveDraft(); renderDark(); } };
+        actions.appendChild(del);
+        fields.appendChild(actions);
+        card.appendChild(fields);
+        box.appendChild(card);
+      });
+    }
+
+    document.getElementById('addDark').onclick = () => {
+      data.darkCharacters.push({ img: '', name: '', story: '', bubble: '', stamp: 'ננטש ✶', status: '' });
+      saveDraft(); renderDark();
+    };
+
     document.getElementById('addChar').onclick = () => {
       data.characters.push({ img: '', name: '', story: '', bubble: '', status: '', owner: '' });
       saveDraft(); renderChars();
@@ -402,6 +472,7 @@
 
     renderChars();
     renderWaiting();
+    renderDark();
   </script>
 </body>
 </html>

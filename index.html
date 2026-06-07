@@ -27,6 +27,7 @@
       <a href="#characters">הדמויות</a>
       <a href="#process">איך זה עובד</a>
       <a href="#create" class="nav__cta">להזמין דמות</a>
+      <button class="nav__darkside" type="button" id="darkOpen" title="הצד האפל">הצד האפל</button>
     </nav>
   </header>
 
@@ -245,6 +246,21 @@
       <a href="#" id="waLink" target="_blank" rel="noopener">WhatsApp</a>
     </div>
   </footer>
+
+  <!-- ================= THE DARK GATE ================= -->
+  <div class="gate" id="darkGate" hidden>
+    <div class="gate__backdrop" data-gate-close></div>
+    <div class="gate__card">
+      <span class="gate__stamp hand" aria-hidden="true">אזהרה ✶</span>
+      <h2 class="gate__title">הצד האפל של נור</h2>
+      <p class="gate__text">מעבר לדלת הזאת, הבובות לא מחכות לאימוץ.<br>הן מחכות לכם.</p>
+      <p class="gate__q typewriter">בני 18 ומעלה בלבד. מוכנים להיחשף?</p>
+      <div class="gate__btns">
+        <button class="gate__yes" type="button" id="gateYes">אני מעל 18. אני מוכנ.ה ✶</button>
+        <button class="gate__no typewriter" type="button" data-gate-close>לא. תחזירו אותי לאור</button>
+      </div>
+    </div>
+  </div>
 
   <script src="assets/data/content.js"></script>
   <script src="assets/js/main.js"></script>

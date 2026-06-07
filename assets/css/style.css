@@ -112,6 +112,84 @@ img { display: block; max-width: 100%; }
   border-bottom-color: transparent !important;
 }
 
+/* the door to the dark side — quiet, but you notice it */
+.nav__darkside {
+  font-family: var(--body);
+  font-size: 0.85rem;
+  background: #14101a;
+  color: rgba(207, 199, 184, 0.85);
+  border: none;
+  padding: 0.35rem 0.9rem;
+  cursor: pointer;
+  transform: rotate(1.2deg);
+  letter-spacing: 0.05em;
+  transition: color 0.4s, box-shadow 0.4s, transform 0.15s;
+}
+.nav__darkside:hover {
+  color: #fff;
+  box-shadow: 0 0 18px rgba(163, 44, 34, 0.5);
+  transform: rotate(1.2deg) translateY(-1px);
+}
+
+/* ---------- the dark gate ---------- */
+
+.gate { position: fixed; inset: 0; z-index: 200; }
+.gate__backdrop { position: absolute; inset: 0; background: rgba(5, 4, 7, 0.93); cursor: pointer; }
+.gate__card {
+  position: relative;
+  max-width: 480px;
+  margin: 14vh auto 0;
+  background: #141018;
+  border: 1.5px solid #a32c22;
+  padding: 2.8rem 2.4rem 2.2rem;
+  text-align: center;
+  transform: rotate(-0.6deg);
+  box-shadow: 0 0 60px rgba(163, 44, 34, 0.25);
+}
+.gate__stamp {
+  position: absolute;
+  top: -1.2rem; right: 1.2rem;
+  transform: rotate(-7deg);
+  font-size: 1.5rem;
+  line-height: 1;
+  color: #a32c22;
+  border: 3px solid #a32c22;
+  border-radius: 3px;
+  padding: 0.15em 0.5em 0.1em;
+  background: #141018;
+}
+.gate__title {
+  font-family: var(--display);
+  font-weight: 700;
+  font-size: 3rem;
+  line-height: 1;
+  color: #cfc7b8;
+}
+.gate__text { margin-top: 1rem; font-size: 1.05rem; color: #877f72; }
+.gate__q { margin-top: 1.4rem; color: #b97a3a; }
+.gate__btns { margin-top: 1.8rem; display: flex; flex-direction: column; gap: 0.9rem; align-items: center; }
+.gate__yes {
+  font-family: var(--display);
+  font-weight: 700;
+  font-size: 1.6rem;
+  color: #cfc7b8;
+  background: #7e1d1d;
+  border: none;
+  cursor: pointer;
+  padding: 0.5rem 2rem;
+  transform: rotate(-1deg);
+  transition: background 0.3s;
+}
+.gate__yes:hover { background: #a32c22; }
+.gate__no {
+  background: none;
+  border: none;
+  color: #877f72;
+  cursor: pointer;
+  border-bottom: 1px dashed #877f72;
+}
+.gate__no:hover { color: #cfc7b8; }
+
 /* ---------- hero ---------- */
 
 .hero {

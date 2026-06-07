@@ -117,6 +117,31 @@ const esc = (s) => String(s == null ? '' : s)
   });
 })();
 
+// ---- the door to the dark side ----
+(function () {
+  const gate = document.getElementById('darkGate');
+  const open = document.getElementById('darkOpen');
+  if (!gate || !open) return;
+  open.addEventListener('click', () => {
+    gate.hidden = false;
+    document.body.style.overflow = 'hidden';
+  });
+  const close = () => {
+    gate.hidden = true;
+    document.body.style.overflow = '';
+  };
+  gate.addEventListener('click', (e) => {
+    if (e.target.closest('[data-gate-close]')) close();
+  });
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && !gate.hidden) close();
+  });
+  document.getElementById('gateYes').addEventListener('click', () => {
+    try { sessionStorage.setItem('noorDarkConsent', '1'); } catch (e) { /* still let them in */ }
+    location.href = 'dark.html';
+  });
+})();
+
 // ---- the postcard flow. one stitch at a time ----
 (function () {
   const form = document.getElementById('orderForm');
