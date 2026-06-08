@@ -15,6 +15,9 @@ const WHATSAPP_NUMBER = (CONTENT.settings && CONTENT.settings.whatsapp) || '9725
 const esc = (s) => String(s == null ? '' : s)
   .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 
+// image can be an embedded data URI (uploaded via admin) or a filename in assets/img
+const imgSrc = (v) => { v = v || ''; return v.startsWith('data:') ? v : (v ? 'assets/img/' + v : ''); };
+
 // ---- render the galleries ----
 (function renderGalleries() {
   const rots = [-2.5, 3, -3.5, 2, -1.5, 4, -2.8, 2.2, -1.8];
@@ -25,7 +28,7 @@ const esc = (s) => String(s == null ? '' : s)
     scrapbook.innerHTML = (CONTENT.characters || []).map((ch, i) => `
       <figure class="polaroid" style="--r:${rots[i % rots.length]}deg">
         <span class="tape" aria-hidden="true"></span>
-        <img src="assets/img/${esc(ch.img)}" alt="${esc(ch.name)} — דמות סרוגה בעבודת יד" loading="lazy">
+        <img src="${esc(imgSrc(ch.img))}" alt="${esc(ch.name)} — דמות סרוגה בעבודת יד" loading="lazy">
         ${ch.bubble ? `<span class="bubble hand">${esc(ch.bubble)}</span>` : ''}
         <figcaption>
           <span class="polaroid__fig typewriter">fig. ${String(i + 1).padStart(2, '0')}</span><span class="stamp hand" style="--sr:${srots[i % srots.length]}deg" aria-hidden="true">אומץ ✶</span><span class="polaroid__name hand">${esc(ch.name)}</span>
@@ -40,7 +43,7 @@ const esc = (s) => String(s == null ? '' : s)
     adoptGrid.innerHTML = (CONTENT.waiting || []).map((ch, i) => `
       <figure class="polaroid is-developed" style="--r:${rots[(i + 1) % rots.length]}deg">
         <span class="tape" aria-hidden="true"></span>
-        <img src="assets/img/${esc(ch.img)}" alt="${esc(ch.name)} — דמות סרוגה שמחכה לאימוץ" loading="lazy">
+        <img src="${esc(imgSrc(ch.img))}" alt="${esc(ch.name)} — דמות סרוגה שמחכה לאימוץ" loading="lazy">
         ${ch.bubble ? `<span class="bubble hand">${esc(ch.bubble)}</span>` : ''}
         <figcaption>
           <span class="stamp stamp--wait hand" style="--sr:${srots[(i + 2) % srots.length]}deg" aria-hidden="true">${esc(ch.stamp || 'מחפש בית ✶')}</span>

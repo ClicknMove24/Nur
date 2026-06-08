@@ -15,6 +15,8 @@ const WHATSAPP_NUMBER = (CONTENT.settings && CONTENT.settings.whatsapp) || '9725
 const esc = (s) => String(s == null ? '' : s)
   .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 
+const imgSrc = (v) => { v = v || ''; return v.startsWith('data:') ? v : (v ? 'assets/img/' + v : ''); };
+
 // ---- the consent gate (also catches direct visits) ----
 (function () {
   const gate = document.getElementById('darkGate');
@@ -44,7 +46,7 @@ const esc = (s) => String(s == null ? '' : s)
   box.innerHTML = list.map((ch, i) => `
     <figure class="polaroid" style="--r:${rots[i % rots.length]}deg">
       <span class="tape" aria-hidden="true"></span>
-      <img src="assets/img/${esc(ch.img)}" alt="" loading="lazy">
+      <img src="${esc(imgSrc(ch.img))}" alt="" loading="lazy">
       ${ch.bubble ? `<span class="bubble hand">${esc(ch.bubble)}</span>` : ''}
       <figcaption>
         <span class="polaroid__fig typewriter">exhibit ${String(i + 1).padStart(2, '0')}</span><span class="stamp hand" style="--sr:${srots[i % srots.length]}deg" aria-hidden="true">${esc(ch.stamp || 'ננטש ✶')}</span><span class="polaroid__name hand">${esc(ch.name)}</span>
