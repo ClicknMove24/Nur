@@ -195,9 +195,9 @@ img { display: block; max-width: 100%; }
 .hero {
   position: relative;
   padding: 4rem max(2rem, calc((100vw - 1200px) / 2 + 2rem)) 7rem;
-  /* dusk in the studio: warm glow top-right, deep green in the corners */
+  /* one bottle green for all dark blocks; a soft glow, same hue */
   background:
-    radial-gradient(ellipse 90% 70% at 75% 20%, #46604c 0%, var(--night) 60%, var(--night-deep) 100%);
+    radial-gradient(ellipse 120% 80% at 50% 15%, #3f6249 0%, var(--green) 70%);
   color: var(--paper);
 }
 .hero__title {
@@ -981,7 +981,7 @@ img { display: block; max-width: 100%; }
 /* ---------- footer ---------- */
 
 .footer {
-  background: var(--night-deep);
+  background: var(--green);
   color: var(--paper);
   text-align: center;
   padding: 3.5rem 2rem;
