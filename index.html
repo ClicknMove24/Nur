@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>חוט למחשבה ✶ דמויות סרוגות עם נשמה, מאת נור</title>
+  <meta name="description" content="חוט למחשבה — הסטודיו של נור. דמויות סרוגות בהתאמה אישית; כל דמות נולדת פעם אחת בלבד.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Karantina:wght@300;400;700&family=Amatic+SC:wght@400;700&family=Miriam+Libre:wght@400;700&family=Special+Elite&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+  <div class="grain" aria-hidden="true"></div>
+
+  <!-- ================= NAV ================= -->
+  <header class="nav">
+    <a class="nav__logo" href="#top">
+      <span class="nav__logo-he">חוט למחשבה
+        <svg class="nav__thread" viewBox="0 0 130 12" preserveAspectRatio="none" aria-hidden="true">
+          <path d="M2,6 Q10,1 18,6 T34,6 T50,6 T66,6 T82,6 T98,6 T114,6 Q121,9 127,4" fill="none"/>
+        </svg>
+      </span>
+      <span class="nav__logo-en">thread for thought ✶ by noor</span>
+    </a>
+    <nav class="nav__links">
+      <a href="#characters">הדמויות</a>
+      <a href="#process">איך זה עובד</a>
+      <a href="#create" class="nav__cta">להזמין דמות</a>
+      <button class="nav__darkside" type="button" id="darkOpen" title="הצד האפל">הצד האפל</button>
+    </nav>
+  </header>
+
+  <!-- ================= HERO ================= -->
+  <section class="hero" id="top">
+    <h1 class="hero__title">
+      <span class="hero__line1">דמויות</span>
+      <span class="hero__line2">סרוגות</span>
+      <span class="hero__line3">עם <mark>נשמה</mark></span>
+    </h1>
+
+    <figure class="polaroid hero__polaroid" style="--r:-4deg">
+      <span class="tape" aria-hidden="true"></span>
+      <img src="assets/img/hero-main.jpg" alt="יצור סרוג כתום על רקע כהה">
+      <span class="bubble hand">אל תגידו לנור שזזתי.</span>
+      <figcaption class="hand">זה בזיל. הוא ביישן.</figcaption>
+    </figure>
+
+    <svg class="hero__arrow" viewBox="0 0 120 90" aria-hidden="true">
+      <path d="M8,10 C30,55 60,75 100,62" fill="none"/>
+      <path d="M88,52 L102,62 L86,70" fill="none"/>
+    </svg>
+
+    <p class="hero__note hand">נסרג ביד. נולד פעם אחת.<br>לא יוצא בסדרות.</p>
+
+    <div class="sticker hero__sticker" aria-hidden="true">100%<br>צמר ✶ יד<br>✶ לב ✶</div>
+
+    <span class="hero__star hero__star--1" aria-hidden="true">✶</span>
+    <span class="hero__star hero__star--2" aria-hidden="true">✷</span>
+
+    <p class="hero__manifest">
+      <span class="typewriter">חוט למחשבה ✶ thread for thought ✶ est. 2026</span><br>
+      נור לוקחת חוט, מחט, ושם של מישהו שאתם אוהבים —<br>
+      ומחזירה לכם <s>בובה</s> <em>מישהו</em>.
+    </p>
+
+    <svg class="tear" viewBox="0 0 1440 44" preserveAspectRatio="none" aria-hidden="true">
+      <path d="M0,44 L0,26 L48,18 L96,30 L150,14 L210,28 L268,10 L330,24 L390,16 L455,32 L520,12 L585,26 L650,18 L720,30 L790,10 L860,24 L930,14 L1000,28 L1070,16 L1140,30 L1210,12 L1280,26 L1350,18 L1400,28 L1440,16 L1440,44 Z" fill="#f0e6d2"/>
+    </svg>
+  </section>
+
+  <!-- ================= CHARACTERS ================= -->
+  <section class="characters" id="characters">
+    <h2 class="characters__title">הדמויות של נור</h2>
+    <p class="characters__intro hand">
+      כל אחד מהם הוזמן ע״י מישהו, בשביל מישהו.<br>והם זזים כשאתם לא מסתכלים.
+    </p>
+
+    <div class="scrapbook" id="scrapbook"></div>
+
+    <p class="characters__outro">
+      <span class="scribble">וכולם כבר אומצו.</span> אבל יש כאלה שעוד מחכים —
+    </p>
+    <div class="characters__adopt-wrap">
+      <button class="adopt-open" type="button" id="adoptOpen">מי מחכה לאימוץ עכשיו? ✶</button>
+    </div>
+  </section>
+
+  <!-- ================= WAITING FOR ADOPTION ================= -->
+  <div class="adopt" id="adoptModal" hidden>
+    <div class="adopt__backdrop" data-close></div>
+    <div class="adopt__panel">
+      <button class="adopt__close typewriter" type="button" data-close>✕ סגירה</button>
+      <h2 class="adopt__title">מחכים לאימוץ</h2>
+      <p class="adopt__sub hand">שלושה שעדיין ישנים בסטודיו של נור.<br>כל אחד מחכה לשם שייכתב עליו בעט כחול.</p>
+
+      <div class="adopt__grid" id="adoptGrid"></div>
+      <p class="adopt__ps typewriter">האימוץ דרך וואטסאפ — נור תספר לכם הכל על מי שבחרתם.</p>
+    </div>
+  </div>
+
+  <!-- ================= ABOUT NOOR ================= -->
+  <section class="about" id="about">
+    <span class="about__eyebrow typewriter">נור / NOOR</span>
+    <h2 class="about__title" id="aboutTitle">אני לא עושה<br>צעצועים <em>חמודים.</em></h2>
+    <div class="about__body" id="aboutBody">
+      <p>אני סורגת אופי. ביישנות, יהירות, מלנכוליה — מה שצריך כדי שגוש צמר יהפוך למישהו.</p>
+      <p>נור זה אור. אני פשוט מחפשת את הניצוץ שכבר נמצא שם, ומושכת אותו החוצה בחוט.</p>
+    </div>
+    <span class="about__sign hand">— נור ✶</span>
+  </section>
+
+  <!-- ================= WHY / GREEN BLOCK ================= -->
+  <section class="why">
+    <div class="why__inner">
+      <figure class="polaroid why__polaroid" style="--r:3deg">
+        <span class="tape" aria-hidden="true"></span>
+        <img src="assets/img/char-06-rabbit-baby.jpg" alt="ארנב סרוג לצד תינוק" loading="lazy">
+        <figcaption class="hand">החבר הראשון של איתמר</figcaption>
+      </figure>
+      <div class="why__text">
+        <h2>מתנה שאי אפשר<br>לקנות בחנות<span class="why__period">.</span></h2>
+        <p>
+          דמות סרוגה בהתאמה אישית היא לא עוד צעצוע — היא מישהו.
+          חבר ראשון לתינוק שנולד, דיוקן צמר של חתול אהוב,
+          או יצור שקיים רק בדמיון של מי שאתם אוהבים.
+        </p>
+        <p class="typewriter why__stamp">חוט למחשבה ✶ one of one. never reprinted.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= PROCESS ================= -->
+  <section class="process" id="process">
+    <h2 class="process__title">איך נולדת דמות<span class="scribble-under">?</span></h2>
+
+    <div class="note">
+      <span class="note__brand typewriter">✶ חוט למחשבה ✶ הסטודיו של נור ✶</span>
+      <ol class="note__list">
+        <li>
+          <span class="note__num hand">1.</span>
+          <div><strong>מספרים.</strong> ממלאים את הטופס למטה — מי הדמות, מה האופי שלה, בשביל מי היא.</div>
+        </li>
+        <li>
+          <span class="note__num hand">2.</span>
+          <div><strong>חולמים.</strong> נור חוזרת אליכם עם קונספט, סקיצה והצעת מחיר.</div>
+        </li>
+        <li>
+          <span class="note__num hand">3.</span>
+          <div><strong>סורגים.</strong> אתם מקבלים הצצות מהסטודיו בזמן שהדמות מקבלת צורה, לולאה אחרי לולאה.</div>
+        </li>
+        <li>
+          <span class="note__num hand">4.</span>
+          <div><strong>פוגשים.</strong> הדמות מגיעה עטופה, עם השם שלה ותעודת אימוץ רשמית.</div>
+        </li>
+      </ol>
+      <!-- TODO: לאשר מול נור — מחיר התחלתי, זמן יצירה -->
+      <p class="note__footer typewriter">דמויות מתחילות מ־<strong id="priceFrom">___</strong> ✶ זמן יצירה: <strong id="leadTime">___</strong></p>
+    </div>
+  </section>
+
+  <!-- ================= CREATE / POSTCARD FORM ================= -->
+  <section class="create" id="create">
+    <p class="create__intro hand">אין צורך לדעת בדיוק מה אתם רוצים.<br>מספיק שתספרו לנור מי זה. ↓</p>
+
+    <form class="postcard" name="custom-order" id="orderForm">
+      <div class="postcard__stamp" aria-hidden="true">✶<br>חוט<br>למחשבה</div>
+      <h2 class="postcard__title">גלויה לנור</h2>
+
+      <div class="postcard__progress">
+        <span class="postcard__steplabel hand">תפר <b id="stepNum">1</b> מתוך 5</span>
+        <svg class="seam" id="seam" viewBox="0 0 170 14" aria-hidden="true">
+          <path class="done" d="M6,8 Q11,4 16,7 T26,7 T34,8"/>
+          <path d="M40,7 Q45,4 50,8 T58,7 T66,8"/>
+          <path d="M72,8 Q77,5 82,7 T90,8 T98,7"/>
+          <path d="M104,7 Q109,4 114,8 T122,7 T130,8"/>
+          <path d="M136,8 Q141,5 146,7 T154,8 T164,7"/>
+        </svg>
+      </div>
+
+      <!-- step 1 -->
+      <div class="step is-active" data-step="1">
+        <h3 class="step__q hand">קודם כל — מי הדמות?</h3>
+        <div class="chips" id="whoChips">
+          <button type="button" class="chip" data-value="חיה">חיה</button>
+          <button type="button" class="chip" data-value="יצור דמיוני">יצור דמיוני</button>
+          <button type="button" class="chip" data-value="בנאדם">בנאדם</button>
+          <button type="button" class="chip" data-value="עוד אין לזה שם">עוד אין לזה שם</button>
+        </div>
+        <input type="text" id="whoDetail" placeholder="פרטו אם בא לכם — איזו חיה? איזה יצור?">
+        <p class="step__hint typewriter" id="hint1">בחרו משהו, או פשוט כתבו ↑</p>
+      </div>
+
+      <!-- step 2 -->
+      <div class="step" data-step="2">
+        <h3 class="step__q hand">עכשיו האופי. מה הסיפור שלה?</h3>
+        <textarea id="character" rows="4" placeholder="למשל: ינשוף עם נדודי שינה שאוהב קפה קר. או: גרסת צמר של החתולה שלנו, כולל הכתם על האוזן."></textarea>
+        <div class="weird">
+          <label class="weird__label hand" for="weirdRange">מדד המוזרות: <output id="weirdOut">5</output>/10</label>
+          <div class="weird__row">
+            <span class="typewriter">שפויה לגמרי</span>
+            <input type="range" id="weirdRange" min="1" max="10" value="5">
+            <span class="typewriter">מוזרה להפליא</span>
+          </div>
+        </div>
+        <p class="step__hint typewriter" id="hint2">שתי מילים מספיקות. נור תשאל את השאר.</p>
+      </div>
+
+      <!-- step 3 -->
+      <div class="step" data-step="3">
+        <h3 class="step__q hand">בשביל מי זה?</h3>
+        <div class="chips" id="forChips">
+          <button type="button" class="chip" data-value="מתנה">מתנה</button>
+          <button type="button" class="chip" data-value="בשבילי">בשבילי</button>
+          <button type="button" class="chip" data-value="לילד או ילדה">לילד.ה</button>
+          <button type="button" class="chip" data-value="זה סוד">זה סוד ✶</button>
+        </div>
+        <label class="step__sublabel hand" for="deadline">יש תאריך יעד?</label>
+        <input type="text" id="deadline" placeholder="יום הולדת? לידה מתקרבת? (לא חובה)">
+      </div>
+
+      <!-- step 4 -->
+      <div class="step" data-step="4">
+        <h3 class="step__q hand">ולפני שחותמים — מי אתם?</h3>
+        <div class="postcard__row">
+          <label class="step__sublabel hand" for="name">השם שלכם
+            <input type="text" id="name" placeholder="...">
+          </label>
+          <label class="step__sublabel hand" for="contact">טלפון או אימייל
+            <input type="text" id="contact" placeholder="...">
+          </label>
+        </div>
+        <p class="step__hint typewriter" id="hint4">רק כדי שנור תדע למי לחזור.</p>
+      </div>
+
+      <!-- step 5 — the letter -->
+      <div class="step" data-step="5">
+        <h3 class="step__q hand">הנה הגלויה שלכם. מוכנה למשלוח:</h3>
+        <blockquote class="letter hand" id="letter"></blockquote>
+      </div>
+
+      <div class="postcard__nav">
+        <button type="button" class="postcard__back" id="backBtn" hidden>→ רגע, אחורה</button>
+        <button type="submit" class="postcard__send" id="nextBtn">ממשיכים ←</button>
+      </div>
+      <p class="postcard__ps typewriter">P.S. נור עונה לכל גלויה בעצמה. בלי בוטים.</p>
+    </form>
+  </section>
+
+  <!-- ================= FOOTER ================= -->
+  <footer class="footer">
+    <span class="footer__logo">חוט למחשבה</span>
+    <p class="footer__line typewriter">thread for thought ✶ soft sculptures by noor ✶ one of one</p>
+    <div class="footer__links">
+      <!-- TODO: לעדכן קישור אינסטגרם אמיתי -->
+      <a href="#" id="igLink" target="_blank" rel="noopener">Instagram</a>
+      <a href="#" id="waLink" target="_blank" rel="noopener">WhatsApp</a>
+    </div>
+    <a class="footer__admin" href="admin.html">✶ הכניסה של נור</a>
+  </footer>
+
+  <!-- ================= THE DARK GATE ================= -->
+  <div class="gate" id="darkGate" hidden>
+    <div class="gate__backdrop" data-gate-close></div>
+    <div class="gate__card">
+      <span class="gate__stamp hand" aria-hidden="true">אזהרה ✶</span>
+      <h2 class="gate__title">הצד האפל של נור</h2>
+      <p class="gate__text">מעבר לדלת הזאת, הבובות לא מחכות לאימוץ.<br>הן מחכות לכם.</p>
+      <p class="gate__q typewriter">בני 18 ומעלה בלבד. מוכנים להיחשף?</p>
+      <div class="gate__btns">
+        <button class="gate__yes" type="button" id="gateYes">אני מעל 18. אני מוכנ.ה ✶</button>
+        <button class="gate__no typewriter" type="button" data-gate-close>לא. תחזירו אותי לאור</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="assets/data/content.js"></script>
+  <script src="assets/js/main.js"></script>
+</body>
+</html>
