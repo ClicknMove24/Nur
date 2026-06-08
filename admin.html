@@ -95,16 +95,41 @@
   <main>
     <div class="howto">
       <b>איך זה עובד:</b> עורכים כאן (נשמר אוטומטית כטיוטה) ← <b>תצוגה מקדימה</b> לראות את האתר עם השינויים (רק אצלך) ←
-      כשהכל מושלם, <b>הורדת קובץ לאתר</b> ומחליפים את <b dir="ltr">assets/data/content.js</b> באתר.
+      <b>פרסום לאתר ✶</b> — והאתר מתעדכן לבד תוך כדקה. צריך למלא פעם אחת את פרטי החיבור למטה.
     </div>
 
     <nav class="jump">
+      <a href="#p-connect">חיבור</a>
       <a href="#p-settings">הגדרות</a>
       <a href="#p-about">על נור</a>
       <a href="#p-chars">הדמויות</a>
       <a href="#p-wait">מחכים לאימוץ</a>
       <a href="#p-dark">🕯 הצד האפל</a>
     </nav>
+
+    <section class="panel" id="p-connect">
+      <h2>חיבור לאתר (פעם אחת)</h2>
+      <p class="hint">
+        ממלאים פעם אחת; נשמר רק בדפדפן הזה. את ה-Token יוצרים בגיטהאב:
+        Settings ← Developer settings ← Fine-grained tokens ← Generate new token ←
+        בוחרים את הריפו של האתר ← תחת Permissions נותנים ל-<b>Contents</b> הרשאת <b>Read and write</b>.
+      </p>
+      <div class="grid2">
+        <label>משתמש / ארגון GitHub (owner)
+          <input type="text" id="gh-owner" dir="ltr" placeholder="noor-studio">
+        </label>
+        <label>שם הריפו (repo)
+          <input type="text" id="gh-repo" dir="ltr" placeholder="noor-site">
+        </label>
+        <label>ענף (branch)
+          <input type="text" id="gh-branch" dir="ltr" placeholder="main">
+        </label>
+        <label>Token (סודי — נשאר רק בדפדפן שלך)
+          <input type="password" id="gh-token" dir="ltr" placeholder="github_pat_...">
+        </label>
+      </div>
+      <button class="btn btn--move" id="ghTest" style="margin-top:0.6rem">בדיקת חיבור ✓</button>
+    </section>
 
     <section class="panel" id="p-settings">
       <h2>הגדרות כלליות</h2>
@@ -176,8 +201,9 @@
   <div class="savebar">
     <span class="savebar__status" id="status">טיוטה נטענה</span>
     <button class="btn btn--preview" id="previewBtn">תצוגה מקדימה ✶</button>
-    <button class="btn btn--download" id="downloadBtn">הורדת קובץ לאתר ⬇</button>
-    <button class="btn btn--del" id="resetBtn">איפוס לגרסה שבאתר</button>
+    <button class="btn btn--download" id="publishBtn">פרסום לאתר ✶</button>
+    <button class="btn btn--preview" id="downloadBtn" style="opacity:0.85">גיבוי: הורדה ⬇</button>
+    <button class="btn btn--del" id="resetBtn">איפוס</button>
   </div>
 
   <script>
@@ -251,6 +277,50 @@
       const header = '// ✶ חוט למחשבה — קובץ התוכן של האתר ✶\n// הקובץ הזה נערך דרך admin.html — אין צורך לגעת בו ידנית.\n';
       return header + 'window.NOOR_CONTENT = ' + JSON.stringify(data, null, 2) + ';\n';
     }
+
+    // ---- GitHub connection (publish straight from the browser; Vercel redeploys) ----
+    const GH_KEY = 'noorGithubCfg';
+    let gh;
+    try { gh = JSON.parse(localStorage.getItem(GH_KEY)) || {}; } catch (e) { gh = {}; }
+    ['owner', 'repo', 'branch', 'token'].forEach((k) => {
+      const el = document.getElementById('gh-' + k);
+      el.value = gh[k] || (k === 'branch' ? 'main' : '');
+      gh[k] = el.value.trim();
+      el.addEventListener('input', () => { gh[k] = el.value.trim(); localStorage.setItem(GH_KEY, JSON.stringify(gh)); });
+    });
+    localStorage.setItem(GH_KEY, JSON.stringify(gh));
+    const ghReady = () => gh.owner && gh.repo && gh.token;
+
+    function utf8ToB64(str) {
+      return btoa(unescape(encodeURIComponent(str)));
+    }
+    async function ghPut(path, base64Content, message) {
+      const branch = gh.branch || 'main';
+      const base = 'https://api.github.com/repos/' + gh.owner + '/' + gh.repo + '/contents/' + path;
+      const headers = { 'Authorization': 'Bearer ' + gh.token, 'Accept': 'application/vnd.github+json' };
+      let sha;
+      const head = await fetch(base + '?ref=' + encodeURIComponent(branch), { headers });
+      if (head.ok) sha = (await head.json()).sha;
+      const body = { message, content: base64Content, branch };
+      if (sha) body.sha = sha;
+      const put = await fetch(base, { method: 'PUT', headers, body: JSON.stringify(body) });
+      if (!put.ok) {
+        let msg = put.status;
+        try { msg = (await put.json()).message || msg; } catch (e) {}
+        throw new Error(msg);
+      }
+    }
+
+    document.getElementById('ghTest').onclick = async () => {
+      if (!ghReady()) { alert('קודם ממלאים owner, repo ו-Token.'); return; }
+      statusEl.textContent = 'בודק חיבור...';
+      try {
+        const r = await fetch('https://api.github.com/repos/' + gh.owner + '/' + gh.repo,
+          { headers: { 'Authorization': 'Bearer ' + gh.token, 'Accept': 'application/vnd.github+json' } });
+        if (r.ok) { statusEl.textContent = 'החיבור תקין ✶'; alert('מצוין! החיבור לאתר תקין. אפשר לפרסם.'); }
+        else { const e = await r.json(); statusEl.textContent = 'חיבור נכשל'; alert('לא הצליח: ' + (e.message || r.status) + '\nבדקי owner/repo ושה-Token תקף עם הרשאת Contents.'); }
+      } catch (e) { statusEl.textContent = 'שגיאת רשת'; alert('שגיאת רשת: ' + e.message); }
+    };
 
     // ---- generic list editor ----
     function field(labelText, value, onInput, opts) {
@@ -487,10 +557,24 @@
       window.open('index.html?preview=1', '_blank');
     };
 
+    document.getElementById('publishBtn').onclick = async () => {
+      if (!ghReady()) { alert('כדי לפרסם בלחיצה — קודם ממלאים את "חיבור לאתר" (owner, repo, Token) ולוחצים "בדיקת חיבור".'); document.getElementById('p-connect').scrollIntoView(); return; }
+      if (!confirm('לפרסם את כל השינויים לאתר החי?')) return;
+      const btn = document.getElementById('publishBtn');
+      btn.disabled = true; statusEl.textContent = 'מפרסם...';
+      try {
+        await ghPut('assets/data/content.js', utf8ToB64(contentFileText()), 'עדכון תוכן מהממשק של נור ✶');
+        statusEl.textContent = 'פורסם! האתר יתעדכן תוך כדקה ✶';
+        alert('פורסם בהצלחה ✶\nהאתר יתעדכן לבד תוך כדקה (Vercel בונה מחדש).');
+      } catch (e) {
+        statusEl.textContent = 'הפרסום נכשל';
+        alert('הפרסום נכשל: ' + e.message + '\nבדקי שהחיבור תקין (כפתור "בדיקת חיבור") ושל-Token יש הרשאת Contents: Read and write.');
+      }
+      btn.disabled = false;
+    };
+
     document.getElementById('downloadBtn').onclick = () => {
-      const header = '// ✶ חוט למחשבה — קובץ התוכן של האתר ✶\n// הקובץ הזה נערך דרך admin.html — אין צורך לגעת בו ידנית.\n';
-      const text = header + 'window.NOOR_CONTENT = ' + JSON.stringify(data, null, 2) + ';\n';
-      const blob = new Blob([text], { type: 'text/javascript;charset=utf-8' });
+      const blob = new Blob([contentFileText()], { type: 'text/javascript;charset=utf-8' });
       const a = document.createElement('a');
       a.href = URL.createObjectURL(blob);
       a.download = 'content.js';
