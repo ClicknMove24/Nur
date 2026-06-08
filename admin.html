@@ -58,6 +58,10 @@
     .panel--dark .card { background: #0f0c14; border-color: rgba(207,199,184,0.25); }
     .howto { font-size: 0.88rem; background: rgba(217,161,59,0.18); border-right: 4px solid var(--mustard); padding: 0.9rem 1.1rem; border-radius: 3px; }
     .howto b { color: var(--orange); }
+    .jump { position: sticky; top: 0; z-index: 5; display: flex; flex-wrap: wrap; gap: 0.5rem; padding: 0.7rem; background: var(--paper); border-bottom: 1px solid var(--line); margin: 0 -1.2rem; }
+    .jump a { font-size: 0.82rem; color: var(--ink); text-decoration: none; background: var(--white); border: 1px solid var(--line); padding: 0.3rem 0.7rem; border-radius: 99px; white-space: nowrap; }
+    .jump a:hover { background: var(--mustard); }
+    section[id] { scroll-margin-top: 60px; }
     @media (max-width: 640px) { .card { grid-template-columns: 1fr; } .grid2, .card__row { grid-template-columns: 1fr; } }
 
     .lock { position: fixed; inset: 0; z-index: 100; background: var(--green); display: flex; align-items: center; justify-content: center; padding: 1.5rem; }
@@ -91,10 +95,43 @@
   <main>
     <div class="howto">
       <b>איך זה עובד:</b> עורכים כאן (נשמר אוטומטית כטיוטה) ← <b>תצוגה מקדימה</b> לראות את האתר עם השינויים (רק אצלך) ←
-      כשהכל מושלם, <b>הורדת קובץ לאתר</b> ומחליפים את <b dir="ltr">assets/data/content.js</b> באתר.
+      <b>פרסום לאתר ✶</b> — והאתר מתעדכן לבד תוך כדקה. צריך למלא פעם אחת את פרטי החיבור למטה.
     </div>
 
-    <section class="panel">
+    <nav class="jump">
+      <a href="#p-connect">חיבור</a>
+      <a href="#p-settings">הגדרות</a>
+      <a href="#p-about">על נור</a>
+      <a href="#p-chars">הדמויות</a>
+      <a href="#p-wait">מחכים לאימוץ</a>
+      <a href="#p-dark">🕯 הצד האפל</a>
+    </nav>
+
+    <section class="panel" id="p-connect">
+      <h2>חיבור לאתר (פעם אחת)</h2>
+      <p class="hint">
+        ממלאים פעם אחת; נשמר רק בדפדפן הזה. את ה-Token יוצרים בגיטהאב:
+        Settings ← Developer settings ← Fine-grained tokens ← Generate new token ←
+        בוחרים את הריפו של האתר ← תחת Permissions נותנים ל-<b>Contents</b> הרשאת <b>Read and write</b>.
+      </p>
+      <div class="grid2">
+        <label>משתמש / ארגון GitHub (owner)
+          <input type="text" id="gh-owner" dir="ltr" placeholder="noor-studio">
+        </label>
+        <label>שם הריפו (repo)
+          <input type="text" id="gh-repo" dir="ltr" placeholder="noor-site">
+        </label>
+        <label>ענף (branch)
+          <input type="text" id="gh-branch" dir="ltr" placeholder="main">
+        </label>
+        <label>Token (סודי — נשאר רק בדפדפן שלך)
+          <input type="password" id="gh-token" dir="ltr" placeholder="github_pat_...">
+        </label>
+      </div>
+      <button class="btn btn--move" id="ghTest" style="margin-top:0.6rem">בדיקת חיבור ✓</button>
+    </section>
+
+    <section class="panel" id="p-settings">
       <h2>הגדרות כלליות</h2>
       <p class="hint">המספר בפורמט בינלאומי: 0548690829 ← 972548690829</p>
       <div class="grid2">
@@ -113,7 +150,7 @@
       </div>
     </section>
 
-    <section class="panel">
+    <section class="panel" id="p-about">
       <h2>על נור</h2>
       <p class="hint">המקטע "על נור" באתר. כתוב בגוף ראשון (נור מדברת). כל שורה ריקה = פסקה חדשה.</p>
       <label>כותרת
@@ -124,21 +161,21 @@
       </label>
     </section>
 
-    <section class="panel">
+    <section class="panel" id="p-chars">
       <h2>הדמויות של נור (שכבר אומצו)</h2>
       <p class="hint">אלו הדמויות בגלריה הראשית. תמונות: לשמור את הקובץ בתיקייה assets/img ולרשום כאן את שם הקובץ.</p>
       <div id="charList"></div>
       <button class="btn btn--add" id="addChar">+ הוספת דמות שאומצה</button>
     </section>
 
-    <section class="panel">
+    <section class="panel" id="p-wait">
       <h2>מחכים לאימוץ</h2>
       <p class="hint">הדמויות שזמינות עכשיו. כשדמות מאומצת — ממלאים "מי אימץ" ולוחצים "אומץ ✓" והיא עוברת לגלריה הראשית.</p>
       <div id="waitList"></div>
       <button class="btn btn--add" id="addWait">+ הוספת דמות שמחכה</button>
     </section>
 
-    <section class="panel panel--dark">
+    <section class="panel panel--dark" id="p-dark">
       <h2>🕯 הצד האפל</h2>
       <p class="hint">העמוד <b dir="ltr">dark.html</b>. הדמויות, החוקים והאזהרה. אפשר HTML פשוט בשדות הטקסט (למשל &lt;em&gt;מילה&lt;/em&gt; לאדום, &lt;br&gt; לשורה).</p>
       <div class="grid2">
@@ -164,8 +201,9 @@
   <div class="savebar">
     <span class="savebar__status" id="status">טיוטה נטענה</span>
     <button class="btn btn--preview" id="previewBtn">תצוגה מקדימה ✶</button>
-    <button class="btn btn--download" id="downloadBtn">הורדת קובץ לאתר ⬇</button>
-    <button class="btn btn--del" id="resetBtn">איפוס לגרסה שבאתר</button>
+    <button class="btn btn--download" id="publishBtn">פרסום לאתר ✶</button>
+    <button class="btn btn--preview" id="downloadBtn" style="opacity:0.85">גיבוי: הורדה ⬇</button>
+    <button class="btn btn--del" id="resetBtn">איפוס</button>
   </div>
 
   <script>
@@ -240,6 +278,50 @@
       return header + 'window.NOOR_CONTENT = ' + JSON.stringify(data, null, 2) + ';\n';
     }
 
+    // ---- GitHub connection (publish straight from the browser; Vercel redeploys) ----
+    const GH_KEY = 'noorGithubCfg';
+    let gh;
+    try { gh = JSON.parse(localStorage.getItem(GH_KEY)) || {}; } catch (e) { gh = {}; }
+    ['owner', 'repo', 'branch', 'token'].forEach((k) => {
+      const el = document.getElementById('gh-' + k);
+      el.value = gh[k] || (k === 'branch' ? 'main' : '');
+      gh[k] = el.value.trim();
+      el.addEventListener('input', () => { gh[k] = el.value.trim(); localStorage.setItem(GH_KEY, JSON.stringify(gh)); });
+    });
+    localStorage.setItem(GH_KEY, JSON.stringify(gh));
+    const ghReady = () => gh.owner && gh.repo && gh.token;
+
+    function utf8ToB64(str) {
+      return btoa(unescape(encodeURIComponent(str)));
+    }
+    async function ghPut(path, base64Content, message) {
+      const branch = gh.branch || 'main';
+      const base = 'https://api.github.com/repos/' + gh.owner + '/' + gh.repo + '/contents/' + path;
+      const headers = { 'Authorization': 'Bearer ' + gh.token, 'Accept': 'application/vnd.github+json' };
+      let sha;
+      const head = await fetch(base + '?ref=' + encodeURIComponent(branch), { headers });
+      if (head.ok) sha = (await head.json()).sha;
+      const body = { message, content: base64Content, branch };
+      if (sha) body.sha = sha;
+      const put = await fetch(base, { method: 'PUT', headers, body: JSON.stringify(body) });
+      if (!put.ok) {
+        let msg = put.status;
+        try { msg = (await put.json()).message || msg; } catch (e) {}
+        throw new Error(msg);
+      }
+    }
+
+    document.getElementById('ghTest').onclick = async () => {
+      if (!ghReady()) { alert('קודם ממלאים owner, repo ו-Token.'); return; }
+      statusEl.textContent = 'בודק חיבור...';
+      try {
+        const r = await fetch('https://api.github.com/repos/' + gh.owner + '/' + gh.repo,
+          { headers: { 'Authorization': 'Bearer ' + gh.token, 'Accept': 'application/vnd.github+json' } });
+        if (r.ok) { statusEl.textContent = 'החיבור תקין ✶'; alert('מצוין! החיבור לאתר תקין. אפשר לפרסם.'); }
+        else { const e = await r.json(); statusEl.textContent = 'חיבור נכשל'; alert('לא הצליח: ' + (e.message || r.status) + '\nבדקי owner/repo ושה-Token תקף עם הרשאת Contents.'); }
+      } catch (e) { statusEl.textContent = 'שגיאת רשת'; alert('שגיאת רשת: ' + e.message); }
+    };
+
     // ---- generic list editor ----
     function field(labelText, value, onInput, opts) {
       const lab = document.createElement('label');
@@ -253,12 +335,78 @@
       return lab;
     }
 
+    function imgSrc(v) {
+      v = v || '';
+      return v.startsWith('data:') ? v : (v ? 'assets/img/' + v : '');
+    }
+
     function thumb(img) {
       const t = document.createElement('img');
       t.className = 'card__thumb';
-      t.src = 'assets/img/' + (img || '');
+      t.src = imgSrc(img);
       t.onerror = () => { t.style.opacity = 0.25; };
       return t;
+    }
+
+    // upload an image, shrink it in the browser, embed it straight into the content
+    function handleImageUpload(file, ch, rerender) {
+      if (!file) return;
+      if (!/^image\//.test(file.type)) { alert('צריך קובץ תמונה (JPG / PNG / WEBP).'); return; }
+      statusEl.textContent = 'מעבד תמונה...';
+      const reader = new FileReader();
+      reader.onload = () => {
+        const im = new Image();
+        im.onload = () => {
+          const MAX = 1200;
+          let w = im.width, h = im.height;
+          if (w > MAX || h > MAX) { const s = Math.min(MAX / w, MAX / h); w = Math.round(w * s); h = Math.round(h * s); }
+          const cv = document.createElement('canvas');
+          cv.width = w; cv.height = h;
+          cv.getContext('2d').drawImage(im, 0, 0, w, h);
+          ch.img = cv.toDataURL('image/jpeg', 0.82);
+          const kb = Math.round(ch.img.length / 1024);
+          saveDraft(); rerender();
+          statusEl.textContent = 'התמונה הוטמעה ✶ (~' + kb + 'KB)';
+        };
+        im.onerror = () => { statusEl.textContent = 'קובץ התמונה לא נקרא'; };
+        im.src = reader.result;
+      };
+      reader.readAsDataURL(file);
+    }
+
+    // the image control for a card: upload button + (uploaded chip | filename field)
+    function imageControl(ch, rerender) {
+      const lab = document.createElement('label');
+      lab.textContent = 'תמונה';
+      const row = document.createElement('div');
+      row.style.cssText = 'display:flex;gap:0.5rem;align-items:center;flex-wrap:wrap';
+
+      const up = document.createElement('button');
+      up.type = 'button'; up.className = 'btn btn--move'; up.textContent = 'העלאת תמונה ⬆';
+      const file = document.createElement('input');
+      file.type = 'file'; file.accept = 'image/*'; file.hidden = true;
+      up.onclick = () => file.click();
+      file.onchange = () => handleImageUpload(file.files[0], ch, rerender);
+      row.appendChild(up); row.appendChild(file);
+
+      if ((ch.img || '').startsWith('data:')) {
+        const ok = document.createElement('span');
+        ok.textContent = '✓ תמונה הועלתה';
+        ok.style.cssText = 'font-family:monospace;font-size:0.8rem';
+        const clr = document.createElement('button');
+        clr.type = 'button'; clr.className = 'btn btn--del'; clr.textContent = 'הסרה';
+        clr.onclick = () => { ch.img = ''; saveDraft(); rerender(); };
+        row.appendChild(ok); row.appendChild(clr);
+      } else {
+        const inp = document.createElement('input');
+        inp.type = 'text'; inp.dir = 'ltr'; inp.value = ch.img || '';
+        inp.placeholder = 'או שם קובץ מ-assets/img';
+        inp.style.flex = '1 1 140px';
+        inp.addEventListener('input', () => { ch.img = inp.value.trim(); saveDraft(); });
+        row.appendChild(inp);
+      }
+      lab.appendChild(row);
+      return lab;
     }
 
     function renderChars() {
@@ -272,10 +420,8 @@
 
         const fields = document.createElement('div');
         fields.className = 'card__fields';
-        const row1 = document.createElement('div'); row1.className = 'card__row';
-        row1.appendChild(field('שם הדמות', ch.name, v => ch.name = v));
-        row1.appendChild(field('שם קובץ התמונה', ch.img, v => { ch.img = v.trim(); t.src = 'assets/img/' + v.trim(); t.style.opacity = 1; }, { ltr: true }));
-        fields.appendChild(row1);
+        fields.appendChild(field('שם הדמות', ch.name, v => ch.name = v));
+        fields.appendChild(imageControl(ch, renderChars));
         fields.appendChild(field('הסיפור (שורה-שתיים)', ch.story, v => ch.story = v, { textarea: true }));
         const row2 = document.createElement('div'); row2.className = 'card__row';
         row2.appendChild(field('בועת מחשבה (מה היא אומרת ב-hover)', ch.bubble, v => ch.bubble = v));
@@ -308,10 +454,8 @@
 
         const fields = document.createElement('div');
         fields.className = 'card__fields';
-        const row1 = document.createElement('div'); row1.className = 'card__row';
-        row1.appendChild(field('שם הדמות', ch.name, v => ch.name = v));
-        row1.appendChild(field('שם קובץ התמונה', ch.img, v => { ch.img = v.trim(); t.src = 'assets/img/' + v.trim(); t.style.opacity = 1; }, { ltr: true }));
-        fields.appendChild(row1);
+        fields.appendChild(field('שם הדמות', ch.name, v => ch.name = v));
+        fields.appendChild(imageControl(ch, renderWaiting));
         fields.appendChild(field('הסיפור (שורה-שתיים)', ch.story, v => ch.story = v, { textarea: true }));
         const row2 = document.createElement('div'); row2.className = 'card__row';
         row2.appendChild(field('בועת מחשבה', ch.bubble, v => ch.bubble = v));
@@ -372,10 +516,8 @@
         card.appendChild(t);
         const fields = document.createElement('div');
         fields.className = 'card__fields';
-        const row1 = document.createElement('div'); row1.className = 'card__row';
-        row1.appendChild(field('שם הדמות', ch.name, v => ch.name = v));
-        row1.appendChild(field('שם קובץ התמונה', ch.img, v => { ch.img = v.trim(); t.src = 'assets/img/' + v.trim(); t.style.opacity = 1; }, { ltr: true }));
-        fields.appendChild(row1);
+        fields.appendChild(field('שם הדמות', ch.name, v => ch.name = v));
+        fields.appendChild(imageControl(ch, renderDark));
         fields.appendChild(field('הסיפור האפל', ch.story, v => ch.story = v, { textarea: true }));
         const row2 = document.createElement('div'); row2.className = 'card__row';
         row2.appendChild(field('לחישה (ב-hover)', ch.bubble, v => ch.bubble = v));
@@ -415,10 +557,24 @@
       window.open('index.html?preview=1', '_blank');
     };
 
+    document.getElementById('publishBtn').onclick = async () => {
+      if (!ghReady()) { alert('כדי לפרסם בלחיצה — קודם ממלאים את "חיבור לאתר" (owner, repo, Token) ולוחצים "בדיקת חיבור".'); document.getElementById('p-connect').scrollIntoView(); return; }
+      if (!confirm('לפרסם את כל השינויים לאתר החי?')) return;
+      const btn = document.getElementById('publishBtn');
+      btn.disabled = true; statusEl.textContent = 'מפרסם...';
+      try {
+        await ghPut('assets/data/content.js', utf8ToB64(contentFileText()), 'עדכון תוכן מהממשק של נור ✶');
+        statusEl.textContent = 'פורסם! האתר יתעדכן תוך כדקה ✶';
+        alert('פורסם בהצלחה ✶\nהאתר יתעדכן לבד תוך כדקה (Vercel בונה מחדש).');
+      } catch (e) {
+        statusEl.textContent = 'הפרסום נכשל';
+        alert('הפרסום נכשל: ' + e.message + '\nבדקי שהחיבור תקין (כפתור "בדיקת חיבור") ושל-Token יש הרשאת Contents: Read and write.');
+      }
+      btn.disabled = false;
+    };
+
     document.getElementById('downloadBtn').onclick = () => {
-      const header = '// ✶ חוט למחשבה — קובץ התוכן של האתר ✶\n// הקובץ הזה נערך דרך admin.html — אין צורך לגעת בו ידנית.\n';
-      const text = header + 'window.NOOR_CONTENT = ' + JSON.stringify(data, null, 2) + ';\n';
-      const blob = new Blob([text], { type: 'text/javascript;charset=utf-8' });
+      const blob = new Blob([contentFileText()], { type: 'text/javascript;charset=utf-8' });
       const a = document.createElement('a');
       a.href = URL.createObjectURL(blob);
       a.download = 'content.js';
