@@ -1076,3 +1076,18 @@ img { display: block; max-width: 100%; }
   .postcard__row { grid-template-columns: 1fr; }
   .postcard__title { margin-inline-start: 4.5rem; font-size: 2.6rem; }
 }
+
+/* very narrow phones (iPhone SE etc.) — keep the nav on one tidy row */
+@media (max-width: 400px) {
+  .nav { padding: 0.7rem 0.7rem; gap: 0.5rem; }
+  .nav__logo { font-size: 1.3rem; gap: 0.3rem; white-space: nowrap; }
+  .nav__links { gap: 0.55rem; }
+  .nav__links a { font-size: 0.74rem; }
+  .nav__cta { padding: 0.22rem 0.55rem; }
+  .nav__darkside { font-size: 0.74rem; padding: 0.28rem 0.55rem; }
+}
+
+/* tiniest screens — drop the section-jump links (page is one scroll anyway) */
+@media (max-width: 345px) {
+  .nav__links a:not(.nav__cta) { display: none; }
+}
