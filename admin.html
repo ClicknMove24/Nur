@@ -44,6 +44,23 @@
     .btn--del { background: transparent; color: #a8442e; border: 1px solid #a8442e; }
     .btn--move { background: var(--mustard); color: var(--ink); }
 
+    /* ---- gallery editor (several images per card) ---- */
+    .gallery { display: flex; flex-direction: column; gap: 0.5rem; }
+    .gallery__label { font-family: 'Amatic SC', cursive; font-weight: 700; font-size: 1.25rem; }
+    .gallery__strip { display: flex; flex-wrap: wrap; gap: 0.6rem; }
+    .gallery__cell { position: relative; width: 84px; height: 84px; border: 1px solid var(--line); border-radius: 4px; overflow: hidden; background: var(--paper); flex: 0 0 auto; }
+    .gallery__cell > img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .gallery__cover { position: absolute; top: 2px; right: 2px; background: var(--green); color: var(--paper); font-family: 'Special Elite', monospace; font-size: 0.6rem; padding: 1px 5px; border-radius: 99px; }
+    .gallery__ctrls { position: absolute; bottom: 0; left: 0; right: 0; display: flex; justify-content: center; gap: 3px; padding: 3px; background: rgba(43,33,24,0.55); }
+    .gbtn { border: none; background: var(--white); color: var(--ink); width: 21px; height: 21px; border-radius: 3px; font-size: 0.8rem; line-height: 1; display: flex; align-items: center; justify-content: center; padding: 0; cursor: pointer; }
+    .gbtn:disabled { opacity: 0.35; cursor: default; }
+    .gbtn--del { background: #a8442e; color: #fff; }
+    .gallery__add { display: flex; align-items: center; justify-content: center; border-style: dashed; }
+    .gallery__addbtn { background: transparent; border: none; color: var(--green); font-size: 1.7rem; line-height: 0.85; display: flex; flex-direction: column; align-items: center; gap: 2px; }
+    .gallery__addbtn small { font-family: 'Miriam Libre', serif; font-size: 0.6rem; }
+    .gallery__byname { display: flex; gap: 0.5rem; align-items: center; }
+    .gallery__byname input { flex: 1 1 auto; }
+
     .savebar { position: fixed; bottom: 0; right: 0; left: 0; background: var(--ink); padding: 0.9rem 1.5rem; display: flex; gap: 1rem; align-items: center; justify-content: center; flex-wrap: wrap; z-index: 10; }
     .savebar .btn { font-size: 1.05rem; padding: 0.6rem 1.6rem; }
     .btn--preview { background: var(--mustard); color: var(--ink); }
@@ -102,6 +119,7 @@
       <a href="#p-connect">חיבור</a>
       <a href="#p-settings">הגדרות</a>
       <a href="#p-about">על נור</a>
+      <a href="#p-siteimg">תמונות באתר</a>
       <a href="#p-chars">הדמויות</a>
       <a href="#p-wait">מחכים לאימוץ</a>
       <a href="#p-dark">🕯 הצד האפל</a>
@@ -116,10 +134,10 @@
       </p>
       <div class="grid2">
         <label>משתמש / ארגון GitHub (owner)
-          <input type="text" id="gh-owner" dir="ltr" placeholder="noor-studio">
+          <input type="text" id="gh-owner" dir="ltr" placeholder="ClicknMove24">
         </label>
         <label>שם הריפו (repo)
-          <input type="text" id="gh-repo" dir="ltr" placeholder="noor-site">
+          <input type="text" id="gh-repo" dir="ltr" placeholder="noor">
         </label>
         <label>ענף (branch)
           <input type="text" id="gh-branch" dir="ltr" placeholder="main">
@@ -159,6 +177,12 @@
       <label style="margin-top:1rem">הטקסט (אנטר = פסקה חדשה)
         <textarea id="about-body" rows="6"></textarea>
       </label>
+    </section>
+
+    <section class="panel" id="p-siteimg">
+      <h2>תמונות קבועות באתר</h2>
+      <p class="hint">התמונות שלא שייכות לדמות מסוימת — תמונת הפתיחה (הגיבור) ותמונת "החבר הראשון". אפשר להחליף, וגם להוסיף כמה תמונות שיתחלפו לבד באתר.</p>
+      <div id="siteImgList"></div>
     </section>
 
     <section class="panel" id="p-chars">
@@ -282,9 +306,11 @@
     const GH_KEY = 'noorGithubCfg';
     let gh;
     try { gh = JSON.parse(localStorage.getItem(GH_KEY)) || {}; } catch (e) { gh = {}; }
+    // pre-filled with this site's repo so only the Token needs entering
+    const GH_DEFAULTS = { owner: 'ClicknMove24', repo: 'noor', branch: 'main', token: '' };
     ['owner', 'repo', 'branch', 'token'].forEach((k) => {
       const el = document.getElementById('gh-' + k);
-      el.value = gh[k] || (k === 'branch' ? 'main' : '');
+      el.value = gh[k] || GH_DEFAULTS[k];
       gh[k] = el.value.trim();
       el.addEventListener('input', () => { gh[k] = el.value.trim(); localStorage.setItem(GH_KEY, JSON.stringify(gh)); });
     });
@@ -348,65 +374,196 @@
       return t;
     }
 
-    // upload an image, shrink it in the browser, embed it straight into the content
-    function handleImageUpload(file, ch, rerender) {
+    // process ONE image file into a ready-to-embed string, handed back via cb.
+    // supports JPG / PNG / WEBP / GIF (rasterised + compressed) and SVG (embedded as-is, stays vector).
+    function processImageFile(file, cb) {
       if (!file) return;
-      if (!/^image\//.test(file.type)) { alert('צריך קובץ תמונה (JPG / PNG / WEBP).'); return; }
+      const ok = /^image\/(jpeg|jpg|png|webp|gif|svg\+xml)$/i.test(file.type)
+        || /\.(jpe?g|png|webp|gif|svg)$/i.test(file.name || '');
+      if (!ok) { alert('צריך קובץ תמונה: JPG / PNG / SVG / WEBP / GIF.'); return; }
       statusEl.textContent = 'מעבד תמונה...';
+      const isSvg = /svg/i.test(file.type) || /\.svg$/i.test(file.name || '');
       const reader = new FileReader();
+
+      // SVG: keep it vector — embed the source straight in, no rasterising, no quality loss.
+      if (isSvg) {
+        reader.onload = () => {
+          const kb = Math.round(reader.result.length / 1024);
+          cb(reader.result);
+          statusEl.textContent = 'ה-SVG הוטמע ✶ (וקטורי, ~' + kb + 'KB)';
+        };
+        reader.onerror = () => { statusEl.textContent = 'קובץ ה-SVG לא נקרא'; };
+        reader.readAsDataURL(file);
+        return;
+      }
+
+      // raster formats: shrink to MAX and compress. PNG keeps transparency (PNG out), the rest -> JPEG.
+      const keepAlpha = /png/i.test(file.type) || /\.png$/i.test(file.name || '');
       reader.onload = () => {
         const im = new Image();
         im.onload = () => {
           const MAX = 1200;
-          let w = im.width, h = im.height;
+          let w = im.width || MAX, h = im.height || MAX;
           if (w > MAX || h > MAX) { const s = Math.min(MAX / w, MAX / h); w = Math.round(w * s); h = Math.round(h * s); }
           const cv = document.createElement('canvas');
           cv.width = w; cv.height = h;
           cv.getContext('2d').drawImage(im, 0, 0, w, h);
-          ch.img = cv.toDataURL('image/jpeg', 0.82);
-          const kb = Math.round(ch.img.length / 1024);
-          saveDraft(); rerender();
+          const uri = keepAlpha ? cv.toDataURL('image/png') : cv.toDataURL('image/jpeg', 0.82);
+          const kb = Math.round(uri.length / 1024);
+          cb(uri);
           statusEl.textContent = 'התמונה הוטמעה ✶ (~' + kb + 'KB)';
         };
         im.onerror = () => { statusEl.textContent = 'קובץ התמונה לא נקרא'; };
         im.src = reader.result;
       };
+      reader.onerror = () => { statusEl.textContent = 'קובץ התמונה לא נקרא'; };
       reader.readAsDataURL(file);
     }
 
-    // the image control for a card: upload button + (uploaded chip | filename field)
-    function imageControl(ch, rerender) {
+    // ---- a card can hold several images (a gallery) ----
+    const IMG_ACCEPT = 'image/jpeg,image/png,image/svg+xml,image/webp,image/gif,.jpg,.jpeg,.png,.svg,.webp,.gif';
+    function imgList(ch) {
+      if (!Array.isArray(ch.images)) ch.images = ch.img ? [ch.img] : [];
+      return ch.images;
+    }
+    // keep the legacy single field in sync with the first gallery image (back-compat for the site)
+    function syncPrimary(ch) { ch.img = (ch.images && ch.images[0]) || ''; }
+
+    // the gallery editor for a card: reorderable thumbnails + add (upload or filename)
+    function galleryControl(ch, rerender) {
+      const list = imgList(ch);
+      const wrap = document.createElement('div');
+      wrap.className = 'gallery';
+
+      const lab = document.createElement('div');
+      lab.className = 'gallery__label';
+      lab.textContent = 'גלריית תמונות' + (list.length ? ' (' + list.length + ')' : '');
+      wrap.appendChild(lab);
+
+      const strip = document.createElement('div');
+      strip.className = 'gallery__strip';
+
+      list.forEach((src, idx) => {
+        const cell = document.createElement('div');
+        cell.className = 'gallery__cell';
+
+        const im = document.createElement('img');
+        im.src = imgSrc(src);
+        im.onerror = () => { im.style.opacity = 0.25; };
+        cell.appendChild(im);
+
+        if (idx === 0) {
+          const tag = document.createElement('span');
+          tag.className = 'gallery__cover';
+          tag.textContent = 'ראשי';
+          cell.appendChild(tag);
+        }
+
+        const ctrls = document.createElement('div');
+        ctrls.className = 'gallery__ctrls';
+        // RTL: → moves toward the front (index-1), ← toward the back (index+1)
+        const back = document.createElement('button');
+        back.type = 'button'; back.className = 'gbtn'; back.title = 'הזזה לפנים'; back.textContent = '→';
+        back.disabled = idx === 0;
+        back.onclick = () => { const t = list[idx - 1]; list[idx - 1] = list[idx]; list[idx] = t; syncPrimary(ch); saveDraft(); rerender(); };
+
+        const fwd = document.createElement('button');
+        fwd.type = 'button'; fwd.className = 'gbtn'; fwd.title = 'הזזה לאחור'; fwd.textContent = '←';
+        fwd.disabled = idx === list.length - 1;
+        fwd.onclick = () => { const t = list[idx + 1]; list[idx + 1] = list[idx]; list[idx] = t; syncPrimary(ch); saveDraft(); rerender(); };
+
+        const rm = document.createElement('button');
+        rm.type = 'button'; rm.className = 'gbtn gbtn--del'; rm.title = 'הסרה'; rm.textContent = '✕';
+        rm.onclick = () => { list.splice(idx, 1); syncPrimary(ch); saveDraft(); rerender(); };
+
+        ctrls.appendChild(back); ctrls.appendChild(fwd); ctrls.appendChild(rm);
+        cell.appendChild(ctrls);
+        strip.appendChild(cell);
+      });
+
+      // the "add image" cell — supports picking several files at once
+      const addCell = document.createElement('div');
+      addCell.className = 'gallery__cell gallery__add';
+      const addBtn = document.createElement('button');
+      addBtn.type = 'button'; addBtn.className = 'gallery__addbtn'; addBtn.innerHTML = '＋<small>תמונה</small>';
+      const fileInput = document.createElement('input');
+      fileInput.type = 'file'; fileInput.accept = IMG_ACCEPT; fileInput.multiple = true; fileInput.hidden = true;
+      fileInput.onchange = () => {
+        const files = Array.from(fileInput.files || []);
+        (function next(k) {
+          if (k >= files.length) return;
+          processImageFile(files[k], (uri) => {
+            imgList(ch).push(uri); syncPrimary(ch); saveDraft();
+            if (k === files.length - 1) rerender(); else next(k + 1);
+          });
+        })(0);
+      };
+      addBtn.onclick = () => fileInput.click();
+      addCell.appendChild(addBtn); addCell.appendChild(fileInput);
+      strip.appendChild(addCell);
+
+      wrap.appendChild(strip);
+
+      // add by filename from assets/img
+      const byName = document.createElement('div');
+      byName.className = 'gallery__byname';
+      const nameInp = document.createElement('input');
+      nameInp.type = 'text'; nameInp.dir = 'ltr'; nameInp.placeholder = 'או שם קובץ מ-assets/img';
+      const nameAdd = document.createElement('button');
+      nameAdd.type = 'button'; nameAdd.className = 'btn btn--move'; nameAdd.textContent = 'הוספה';
+      const addByName = () => {
+        const v = nameInp.value.trim();
+        if (!v) return;
+        imgList(ch).push(v); syncPrimary(ch); nameInp.value = ''; saveDraft(); rerender();
+      };
+      nameAdd.onclick = addByName;
+      nameInp.addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); addByName(); } });
+      byName.appendChild(nameInp); byName.appendChild(nameAdd);
+      wrap.appendChild(byName);
+
+      return wrap;
+    }
+
+    // a yes/no toggle (checkbox laid out in a row, unlike the column-stacked field())
+    function toggle(labelText, checked, onChange) {
       const lab = document.createElement('label');
-      lab.textContent = 'תמונה';
-      const row = document.createElement('div');
-      row.style.cssText = 'display:flex;gap:0.5rem;align-items:center;flex-wrap:wrap';
-
-      const up = document.createElement('button');
-      up.type = 'button'; up.className = 'btn btn--move'; up.textContent = 'העלאת תמונה ⬆';
-      const file = document.createElement('input');
-      file.type = 'file'; file.accept = 'image/*'; file.hidden = true;
-      up.onclick = () => file.click();
-      file.onchange = () => handleImageUpload(file.files[0], ch, rerender);
-      row.appendChild(up); row.appendChild(file);
-
-      if ((ch.img || '').startsWith('data:')) {
-        const ok = document.createElement('span');
-        ok.textContent = '✓ תמונה הועלתה';
-        ok.style.cssText = 'font-family:monospace;font-size:0.8rem';
-        const clr = document.createElement('button');
-        clr.type = 'button'; clr.className = 'btn btn--del'; clr.textContent = 'הסרה';
-        clr.onclick = () => { ch.img = ''; saveDraft(); rerender(); };
-        row.appendChild(ok); row.appendChild(clr);
-      } else {
-        const inp = document.createElement('input');
-        inp.type = 'text'; inp.dir = 'ltr'; inp.value = ch.img || '';
-        inp.placeholder = 'או שם קובץ מ-assets/img';
-        inp.style.flex = '1 1 140px';
-        inp.addEventListener('input', () => { ch.img = inp.value.trim(); saveDraft(); });
-        row.appendChild(inp);
-      }
-      lab.appendChild(row);
+      lab.style.cssText = 'flex-direction:row;align-items:center;gap:0.5rem;cursor:pointer;font-size:1.1rem';
+      const cb = document.createElement('input');
+      cb.type = 'checkbox'; cb.checked = checked;
+      cb.style.cssText = 'width:1.15rem;height:1.15rem;flex:0 0 auto;accent-color:var(--green)';
+      cb.addEventListener('change', () => { onChange(cb.checked); saveDraft(); });
+      const span = document.createElement('span');
+      span.textContent = labelText;
+      lab.appendChild(cb); lab.appendChild(span);
       return lab;
+    }
+
+    // ---- fixed site images (hero / "why") ----
+    const SITE_IMG_SLOTS = [
+      { key: 'hero', label: 'תמונת הפתיחה (המקטע הראשון)', def: 'hero-main.jpg' },
+      { key: 'why', label: '״החבר הראשון״ (מקטע ההסבר)', def: 'char-06-rabbit-baby.jpg' },
+    ];
+    function renderSiteImages() {
+      const box = document.getElementById('siteImgList');
+      if (!box) return;
+      box.innerHTML = '';
+      if (!data.siteImages) data.siteImages = {};
+      SITE_IMG_SLOTS.forEach((slot) => {
+        if (!data.siteImages[slot.key]) data.siteImages[slot.key] = { img: slot.def, images: [slot.def] };
+        const ch = data.siteImages[slot.key];
+        const card = document.createElement('div');
+        card.className = 'card';
+        card.appendChild(thumb(ch.img));
+        const fields = document.createElement('div');
+        fields.className = 'card__fields';
+        const h = document.createElement('div');
+        h.style.cssText = "font-family:'Amatic SC',cursive;font-weight:700;font-size:1.5rem";
+        h.textContent = slot.label;
+        fields.appendChild(h);
+        fields.appendChild(galleryControl(ch, renderSiteImages));
+        card.appendChild(fields);
+        box.appendChild(card);
+      });
     }
 
     function renderChars() {
@@ -421,13 +578,21 @@
         const fields = document.createElement('div');
         fields.className = 'card__fields';
         fields.appendChild(field('שם הדמות', ch.name, v => ch.name = v));
-        fields.appendChild(imageControl(ch, renderChars));
+        fields.appendChild(galleryControl(ch, renderChars));
         fields.appendChild(field('הסיפור (שורה-שתיים)', ch.story, v => ch.story = v, { textarea: true }));
         const row2 = document.createElement('div'); row2.className = 'card__row';
         row2.appendChild(field('בועת מחשבה (מה היא אומרת ב-hover)', ch.bubble, v => ch.bubble = v));
         row2.appendChild(field('"כרגע:" (סטטוס קטן)', ch.status, v => ch.status = v));
         fields.appendChild(row2);
-        fields.appendChild(field('מי אימץ (שם פרטי / משפחה)', ch.owner, v => ch.owner = v));
+
+        // adopted? — off = still looking for a home (the banner turns green)
+        const adopted = ch.adopted !== false;
+        fields.appendChild(toggle('אומצה כבר? (כבוי = עדיין מחפשת בית — החותמת תהפוך לירוקה)', adopted, (v) => { ch.adopted = v; renderChars(); }));
+        if (adopted) {
+          fields.appendChild(field('מי אימץ (שם פרטי / משפחה)', ch.owner, v => ch.owner = v));
+        } else {
+          fields.appendChild(field('טקסט החותמת (כשעדיין לא אומצה)', ch.stamp || 'מחפשת בית ✶', v => ch.stamp = v));
+        }
 
         const actions = document.createElement('div');
         actions.className = 'card__actions';
@@ -455,7 +620,7 @@
         const fields = document.createElement('div');
         fields.className = 'card__fields';
         fields.appendChild(field('שם הדמות', ch.name, v => ch.name = v));
-        fields.appendChild(imageControl(ch, renderWaiting));
+        fields.appendChild(galleryControl(ch, renderWaiting));
         fields.appendChild(field('הסיפור (שורה-שתיים)', ch.story, v => ch.story = v, { textarea: true }));
         const row2 = document.createElement('div'); row2.className = 'card__row';
         row2.appendChild(field('בועת מחשבה', ch.bubble, v => ch.bubble = v));
@@ -475,7 +640,7 @@
         move.onclick = () => {
           const owner = (card.dataset.owner || '').trim();
           if (!owner) { alert('רגע — מי אימץ? ממלאים את השדה "מי אימץ?" ואז מעבירים.'); return; }
-          data.characters.push({ img: ch.img, name: ch.name, story: ch.story, bubble: ch.bubble, status: '', owner: owner });
+          data.characters.push({ img: ch.img, images: imgList(ch).slice(), name: ch.name, story: ch.story, bubble: ch.bubble, status: '', owner: owner });
           data.waiting.splice(i, 1);
           saveDraft(); renderChars(); renderWaiting();
         };
@@ -517,7 +682,7 @@
         const fields = document.createElement('div');
         fields.className = 'card__fields';
         fields.appendChild(field('שם הדמות', ch.name, v => ch.name = v));
-        fields.appendChild(imageControl(ch, renderDark));
+        fields.appendChild(galleryControl(ch, renderDark));
         fields.appendChild(field('הסיפור האפל', ch.story, v => ch.story = v, { textarea: true }));
         const row2 = document.createElement('div'); row2.className = 'card__row';
         row2.appendChild(field('לחישה (ב-hover)', ch.bubble, v => ch.bubble = v));
@@ -589,9 +754,10 @@
       location.reload();
     };
 
+    renderSiteImages();
     renderChars();
     renderWaiting();
     renderDark();
-  </script>
+</script>
 </body>
 </html>

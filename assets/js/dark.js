@@ -17,6 +17,19 @@ const esc = (s) => String(s == null ? '' : s)
 
 const imgSrc = (v) => { v = v || ''; return v.startsWith('data:') ? v : (v ? 'assets/img/' + v : ''); };
 
+// a card may carry several images (a gallery); fall back to the single legacy field
+const imgList = (ch) => (ch.images && ch.images.length) ? ch.images : (ch.img ? [ch.img] : []);
+const galleryHTML = (ch, alt) => {
+  const list = imgList(ch);
+  if (list.length <= 1) {
+    return `<img src="${esc(imgSrc(list[0] || ''))}" alt="${esc(alt)}" loading="lazy">`;
+  }
+  const imgs = list.map((src, i) =>
+    `<img src="${esc(imgSrc(src))}" alt="${esc(alt)}" loading="lazy"${i === 0 ? ' class="is-active"' : ''}>`).join('');
+  const dots = list.map((_, i) => `<span${i === 0 ? ' class="is-active"' : ''}></span>`).join('');
+  return `<div class="polaroid__stack" data-gallery>${imgs}<span class="polaroid__dots" aria-hidden="true">${dots}</span></div>`;
+};
+
 // ---- the consent gate (also catches direct visits) ----
 (function () {
   const gate = document.getElementById('darkGate');
@@ -46,7 +59,7 @@ const imgSrc = (v) => { v = v || ''; return v.startsWith('data:') ? v : (v ? 'as
   box.innerHTML = list.map((ch, i) => `
     <figure class="polaroid" style="--r:${rots[i % rots.length]}deg">
       <span class="tape" aria-hidden="true"></span>
-      <img src="${esc(imgSrc(ch.img))}" alt="" loading="lazy">
+      ${galleryHTML(ch, (ch.name || '') + ' — דמות אפלה')}
       ${ch.bubble ? `<span class="bubble hand">${esc(ch.bubble)}</span>` : ''}
       <figcaption>
         <span class="polaroid__fig typewriter">exhibit ${String(i + 1).padStart(2, '0')}</span><span class="stamp hand" style="--sr:${srots[i % srots.length]}deg" aria-hidden="true">${esc(ch.stamp || 'ננטש ✶')}</span><span class="polaroid__name hand">${esc(ch.name)}</span>
@@ -54,6 +67,21 @@ const imgSrc = (v) => { v = v || ''; return v.startsWith('data:') ? v : (v ? 'as
         ${ch.status ? `<span class="polaroid__status typewriter">כרגע: ${esc(ch.status)}</span>` : ''}
       </figcaption>
     </figure>`).join('');
+
+  // multi-photo cards rotate through their gallery — slower, the dark wall breathes
+  document.querySelectorAll('[data-gallery]').forEach((g, gi) => {
+    const imgs = Array.from(g.querySelectorAll('img'));
+    const dots = Array.from(g.querySelectorAll('.polaroid__dots span'));
+    if (imgs.length < 2) return;
+    let idx = 0;
+    setInterval(() => {
+      imgs[idx].classList.remove('is-active');
+      if (dots[idx]) dots[idx].classList.remove('is-active');
+      idx = (idx + 1) % imgs.length;
+      imgs[idx].classList.add('is-active');
+      if (dots[idx]) dots[idx].classList.add('is-active');
+    }, 4200 + (gi % 5) * 400);
+  });
 })();
 
 // ---- editable copy (intro / law / warning), if set in admin ----

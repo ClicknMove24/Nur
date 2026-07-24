@@ -18,6 +18,20 @@ const esc = (s) => String(s == null ? '' : s)
 // image can be an embedded data URI (uploaded via admin) or a filename in assets/img
 const imgSrc = (v) => { v = v || ''; return v.startsWith('data:') ? v : (v ? 'assets/img/' + v : ''); };
 
+// a card may carry several images (a gallery); fall back to the single legacy field
+const imgList = (ch) => (ch.images && ch.images.length) ? ch.images : (ch.img ? [ch.img] : []);
+// one image → a plain <img>; several → a stack that cross-fades (rotated by rotateGalleries below)
+const galleryHTML = (ch, alt) => {
+  const list = imgList(ch);
+  if (list.length <= 1) {
+    return `<img src="${esc(imgSrc(list[0] || ''))}" alt="${esc(alt)}" loading="lazy">`;
+  }
+  const imgs = list.map((src, i) =>
+    `<img src="${esc(imgSrc(src))}" alt="${esc(alt)}" loading="lazy"${i === 0 ? ' class="is-active"' : ''}>`).join('');
+  const dots = list.map((_, i) => `<span${i === 0 ? ' class="is-active"' : ''}></span>`).join('');
+  return `<div class="polaroid__stack" data-gallery>${imgs}<span class="polaroid__dots" aria-hidden="true">${dots}</span></div>`;
+};
+
 // ---- render the galleries ----
 (function renderGalleries() {
   const rots = [-2.5, 3, -3.5, 2, -1.5, 4, -2.8, 2.2, -1.8];
@@ -25,17 +39,22 @@ const imgSrc = (v) => { v = v || ''; return v.startsWith('data:') ? v : (v ? 'as
 
   const scrapbook = document.getElementById('scrapbook');
   if (scrapbook) {
-    scrapbook.innerHTML = (CONTENT.characters || []).map((ch, i) => `
+    scrapbook.innerHTML = (CONTENT.characters || []).map((ch, i) => {
+      const adopted = ch.adopted !== false; // default: adopted (red stamp). off = still looking (green)
+      const stampCls = adopted ? 'stamp' : 'stamp stamp--wait';
+      const stampText = adopted ? 'אומץ ✶' : esc(ch.stamp || 'מחפשת בית ✶');
+      return `
       <figure class="polaroid" style="--r:${rots[i % rots.length]}deg">
         <span class="tape" aria-hidden="true"></span>
-        <img src="${esc(imgSrc(ch.img))}" alt="${esc(ch.name)} — דמות סרוגה בעבודת יד" loading="lazy">
+        ${galleryHTML(ch, ch.name + ' — דמות סרוגה בעבודת יד')}
         ${ch.bubble ? `<span class="bubble hand">${esc(ch.bubble)}</span>` : ''}
         <figcaption>
-          <span class="polaroid__fig typewriter">fig. ${String(i + 1).padStart(2, '0')}</span><span class="stamp hand" style="--sr:${srots[i % srots.length]}deg" aria-hidden="true">אומץ ✶</span><span class="polaroid__name hand">${esc(ch.name)}</span>
+          <span class="polaroid__fig typewriter">fig. ${String(i + 1).padStart(2, '0')}</span><span class="${stampCls} hand" style="--sr:${srots[i % srots.length]}deg" aria-hidden="true">${stampText}</span><span class="polaroid__name hand">${esc(ch.name)}</span>
           <span class="polaroid__story">${esc(ch.story)}</span>
-          ${ch.status ? `<span class="polaroid__status typewriter">כרגע: ${esc(ch.status)}</span>` : ''}${ch.owner ? `<span class="polaroid__owner hand">של ${esc(ch.owner)} ✶</span>` : ''}
+          ${ch.status ? `<span class="polaroid__status typewriter">כרגע: ${esc(ch.status)}</span>` : ''}${adopted && ch.owner ? `<span class="polaroid__owner hand">של ${esc(ch.owner)} ✶</span>` : ''}
         </figcaption>
-      </figure>`).join('');
+      </figure>`;
+    }).join('');
   }
 
   const adoptGrid = document.getElementById('adoptGrid');
@@ -43,7 +62,7 @@ const imgSrc = (v) => { v = v || ''; return v.startsWith('data:') ? v : (v ? 'as
     adoptGrid.innerHTML = (CONTENT.waiting || []).map((ch, i) => `
       <figure class="polaroid is-developed" style="--r:${rots[(i + 1) % rots.length]}deg">
         <span class="tape" aria-hidden="true"></span>
-        <img src="${esc(imgSrc(ch.img))}" alt="${esc(ch.name)} — דמות סרוגה שמחכה לאימוץ" loading="lazy">
+        ${galleryHTML(ch, ch.name + ' — דמות סרוגה שמחכה לאימוץ')}
         ${ch.bubble ? `<span class="bubble hand">${esc(ch.bubble)}</span>` : ''}
         <figcaption>
           <span class="stamp stamp--wait hand" style="--sr:${srots[(i + 2) % srots.length]}deg" aria-hidden="true">${esc(ch.stamp || 'מחפש בית ✶')}</span>
@@ -53,6 +72,21 @@ const imgSrc = (v) => { v = v || ''; return v.startsWith('data:') ? v : (v ? 'as
         </figcaption>
       </figure>`).join('');
   }
+
+  // ---- fixed site images (hero, "why") — editable via admin, may also rotate ----
+  const applySiteImage = (selector, slot, alt) => {
+    const fig = document.querySelector(selector);
+    if (!fig || !slot) return;
+    if (!imgList(slot).length) return; // nothing set → keep the hard-coded default
+    const existing = fig.querySelector('img, .polaroid__stack');
+    if (!existing) return;
+    const holder = document.createElement('div');
+    holder.innerHTML = galleryHTML(slot, alt).trim();
+    existing.replaceWith(holder.firstElementChild);
+  };
+  const SI = CONTENT.siteImages || {};
+  applySiteImage('.hero__polaroid', SI.hero, 'נור — דמות סרוגה');
+  applySiteImage('.why__polaroid', SI.why, 'נור — דמות סרוגה לצד תינוק');
 
   // empty waiting list → hide the adoption button
   const adoptWrap = document.querySelector('.characters__adopt-wrap');
@@ -107,6 +141,25 @@ const imgSrc = (v) => { v = v || ''; return v.startsWith('data:') ? v : (v ? 'as
     }
   }, { threshold: 0.3 });
   document.querySelectorAll('.polaroid').forEach((p) => developer.observe(p));
+})();
+
+// ---- multi-photo cards quietly rotate through their gallery ----
+(function rotateGalleries() {
+  document.querySelectorAll('[data-gallery]').forEach((g, gi) => {
+    const imgs = Array.from(g.querySelectorAll('img'));
+    const dots = Array.from(g.querySelectorAll('.polaroid__dots span'));
+    if (imgs.length < 2) return;
+    let idx = 0;
+    const advance = () => {
+      imgs[idx].classList.remove('is-active');
+      if (dots[idx]) dots[idx].classList.remove('is-active');
+      idx = (idx + 1) % imgs.length;
+      imgs[idx].classList.add('is-active');
+      if (dots[idx]) dots[idx].classList.add('is-active');
+    };
+    // stagger so the whole wall doesn't flip in unison
+    setInterval(advance, 3400 + (gi % 5) * 350);
+  });
 })();
 
 // ---- waiting-for-adoption overlay ----

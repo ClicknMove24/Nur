@@ -7,6 +7,10 @@ window.NOOR_CONTENT = {
     "priceFrom": "",
     "leadTime": ""
   },
+  "siteImages": {
+    "hero": { "img": "hero-main.jpg", "images": ["hero-main.jpg"] },
+    "why": { "img": "char-06-rabbit-baby.jpg", "images": ["char-06-rabbit-baby.jpg"] }
+  },
   "characters": [
     {
       "img": "char-01-sheep.jpg",
