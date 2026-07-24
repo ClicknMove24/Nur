@@ -264,6 +264,8 @@
   </script>
 
   <script src="assets/data/content.js"></script>
+  <!-- הגדרות מקומיות (טוקן) — קיים רק במחשב של נור, לא עולה לגיטהאב -->
+  <script src="assets/data/gh-local.js"></script>
   <script>
     const DRAFT_KEY = 'noorContentDraft';
     const statusEl = document.getElementById('status');
@@ -307,10 +309,12 @@
     let gh;
     try { gh = JSON.parse(localStorage.getItem(GH_KEY)) || {}; } catch (e) { gh = {}; }
     // pre-filled with this site's repo so only the Token needs entering
-    const GH_DEFAULTS = { owner: 'ClicknMove24', repo: 'noor', branch: 'main', token: '' };
+    const GH_DEFAULTS = { owner: 'ClicknMove24', repo: 'Nur', branch: 'main', token: '' };
+    // gh-local.js (המחשב של נור בלבד, לא בגיטהאב) גובר על מה שנשמר בדפדפן
+    const GH_LOCAL = window.NOOR_GH_LOCAL || {};
     ['owner', 'repo', 'branch', 'token'].forEach((k) => {
       const el = document.getElementById('gh-' + k);
-      el.value = gh[k] || GH_DEFAULTS[k];
+      el.value = GH_LOCAL[k] || gh[k] || GH_DEFAULTS[k];
       gh[k] = el.value.trim();
       el.addEventListener('input', () => { gh[k] = el.value.trim(); localStorage.setItem(GH_KEY, JSON.stringify(gh)); });
     });

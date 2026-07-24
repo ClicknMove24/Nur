@@ -1,3 +1,7 @@
 ﻿_*.html
 Thumbs.db
 .DS_Store
+
+# הגדרות מקומיות של פאנל העריכה — מכיל טוקן, אסור שיעלה לגיטהאב
+assets/data/gh-local.js
+crochet-tool/
