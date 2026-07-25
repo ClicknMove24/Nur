@@ -21,15 +21,13 @@ window.NOOR_CONTENT = {
   },
   "characters": [
     {
-      "img": "char-01-sheep.jpg",
+      "img": "",
       "name": "מרסל",
-      "story": "כבשה שמשוכנעת שהיא רקדנית בלט. הרגליים הארוכות לא עוזרות לה להכחיש.",
+      "story": "fcavvvvv",
       "bubble": "אני לא ״חמודה״. אני רקדנית.",
       "status": "מתאוששת מהופעה",
       "owner": "עדי",
-      "images": [
-        "char-01-sheep.jpg"
-      ]
+      "images": []
     },
     {
       "img": "char-02-monkey.jpg",
