@@ -8,17 +8,26 @@ window.NOOR_CONTENT = {
     "leadTime": ""
   },
   "siteImages": {
-    "hero": { "img": "hero-main.jpg", "images": ["hero-main.jpg"] },
-    "why": { "img": "char-06-rabbit-baby.jpg", "images": ["char-06-rabbit-baby.jpg"] }
+    "hero": {
+      "img": "hero-main.jpg",
+      "images": [
+        "hero-main.jpg"
+      ]
+    },
+    "why": {
+      "img": "",
+      "images": []
+    }
   },
   "characters": [
     {
-      "img": "char-01-sheep.jpg",
+      "img": "",
       "name": "מרסל",
-      "story": "כבשה שמשוכנעת שהיא רקדנית בלט. הרגליים הארוכות לא עוזרות לה להכחיש.",
+      "story": "fcavvvvv",
       "bubble": "אני לא ״חמודה״. אני רקדנית.",
       "status": "מתאוששת מהופעה",
-      "owner": "עדי"
+      "owner": "עדי",
+      "images": []
     },
     {
       "img": "char-02-monkey.jpg",
@@ -26,7 +35,10 @@ window.NOOR_CONTENT = {
       "story": "אף אחד לא בטוח מה הוא בדיוק. גוסטב מעדיף שזה יישאר ככה.",
       "bubble": "גם אני לא יודע מה אני.",
       "status": "בוהה בקיר. בכוונה.",
-      "owner": "יואב"
+      "owner": "יואב",
+      "images": [
+        "char-02-monkey.jpg"
+      ]
     },
     {
       "img": "char-03-donkey-sweater.jpg",
@@ -34,7 +46,10 @@ window.NOOR_CONTENT = {
       "story": "חמור אינטלקטואל. הסוודר בצבע אלמוג? בחירה מודעת. אל תתווכחו איתו.",
       "bubble": "הסוודר נשאר. סוף הדיון.",
       "status": "קורא. לא להפריע.",
-      "owner": "מיכל"
+      "owner": "מיכל",
+      "images": [
+        "char-03-donkey-sweater.jpg"
+      ]
     },
     {
       "img": "char-04-alpaca-family.jpg",
@@ -42,7 +57,10 @@ window.NOOR_CONTENT = {
       "story": "שלוש אלפקות, דעה אחת: אחה״צ נועד לעמידה שקטה בשורה.",
       "bubble": "תעמדו ישר. מסתכלים עלינו.",
       "status": "עומדות בשורה. שוב.",
-      "owner": "משפחת לוי"
+      "owner": "משפחת לוי",
+      "images": [
+        "char-04-alpaca-family.jpg"
+      ]
     },
     {
       "img": "char-05-bunny-orchids.jpg",
@@ -50,7 +68,10 @@ window.NOOR_CONTENT = {
       "story": "ארנבת עם חצאית ירוקה ועבר מסתורי. מגדלת סחלבים, לא עונה לשאלות.",
       "bubble": "אל תשאלו על העבר.",
       "status": "משקה את הסחלבים",
-      "owner": "נועה"
+      "owner": "נועה",
+      "images": [
+        "char-05-bunny-orchids.jpg"
+      ]
     },
     {
       "img": "char-07-bear-flatlay.jpg",
@@ -58,7 +79,10 @@ window.NOOR_CONTENT = {
       "story": "דובה ביישנית בשמלה ורודה. לוקח לה זמן להיפתח. שווה לחכות.",
       "bubble": "רגע. אני עוד מתביישת.",
       "status": "מציצה מאחורי הדלת",
-      "owner": "רוני"
+      "owner": "רוני",
+      "images": [
+        "char-07-bear-flatlay.jpg"
+      ]
     }
   ],
   "about": {
@@ -78,7 +102,10 @@ window.NOOR_CONTENT = {
       "story": "הרקדנית. היא לא הפסיקה לרקוד מאז שהאורות כבו.",
       "bubble": "תרקדו איתי. לנצח.",
       "stamp": "ננטשה ✶",
-      "status": "רוקדת. שנה שלישית."
+      "status": "רוקדת. שנה שלישית.",
+      "images": [
+        "char-01-sheep.jpg"
+      ]
     },
     {
       "img": "char-02-monkey.jpg",
@@ -86,7 +113,10 @@ window.NOOR_CONTENT = {
       "story": "עכשיו הוא יודע בדיוק מה הוא. הלוואי שגם אנחנו לא היינו יודעים.",
       "bubble": "סוף סוף הסתכלת עליי.",
       "stamp": "אבד ✶",
-      "status": "מאחוריך"
+      "status": "מאחוריך",
+      "images": [
+        "char-02-monkey.jpg"
+      ]
     },
     {
       "img": "char-03-donkey-sweater.jpg",
@@ -94,7 +124,10 @@ window.NOOR_CONTENT = {
       "story": "הסוודר נשאר. הוא מסתיר תפרים שנפרמו מבפנים.",
       "bubble": "הדיון לא נגמר. הוא רק התחיל.",
       "stamp": "חזר לבד ✶",
-      "status": "פורם"
+      "status": "פורם",
+      "images": [
+        "char-03-donkey-sweater.jpg"
+      ]
     },
     {
       "img": "char-04-alpaca-family.jpg",
@@ -102,7 +135,10 @@ window.NOOR_CONTENT = {
       "story": "שלוש נכנסו לחושך. בבוקר עמדו בשורה ארבע.",
       "bubble": "בוא תעמוד איתנו בשורה.",
       "stamp": "ננטשו ✶",
-      "status": "סופרות אותך"
+      "status": "סופרות אותך",
+      "images": [
+        "char-04-alpaca-family.jpg"
+      ]
     },
     {
       "img": "char-05-bunny-orchids.jpg",
@@ -110,7 +146,10 @@ window.NOOR_CONTENT = {
       "story": "עכשיו אנחנו יודעים מה היה בעבר שלה. עדיף שלא היינו שואלים.",
       "bubble": "הסחלבים. תבדקו מתחת לסחלבים.",
       "stamp": "אבדה ✶",
-      "status": "חופרת"
+      "status": "חופרת",
+      "images": [
+        "char-05-bunny-orchids.jpg"
+      ]
     },
     {
       "img": "char-07-bear-flatlay.jpg",
@@ -118,7 +157,10 @@ window.NOOR_CONTENT = {
       "story": "היא כבר לא מתביישת.",
       "bubble": "ראית אותי. עכשיו תורי.",
       "stamp": "חזרה לבד ✶",
-      "status": "מסתכלת. תמיד."
+      "status": "מסתכלת. תמיד.",
+      "images": [
+        "char-07-bear-flatlay.jpg"
+      ]
     }
   ],
   "waiting": [
@@ -128,7 +170,10 @@ window.NOOR_CONTENT = {
       "story": "דובה בשמלה ורודה שמסרבת להיפרד מהחתול שלה. הם חבילה אחת.",
       "bubble": "החתול בא איתי. זה לא משא ומתן.",
       "stamp": "מחפשת בית ✶",
-      "adoptName": "צילה (והחתול)"
+      "adoptName": "צילה (והחתול)",
+      "images": [
+        "wait-01-bear-cat.jpg"
+      ]
     },
     {
       "img": "wait-02-giraffe.jpg",
@@ -136,7 +181,10 @@ window.NOOR_CONTENT = {
       "story": "ג׳ירפה בגובה של ספל קפה, עם ביטחון של ג׳ירפה אמיתית.",
       "bubble": "הפרחים? נשתלו לכבודי.",
       "stamp": "מחפש בית ✶",
-      "adoptName": "ג׳ו"
+      "adoptName": "ג׳ו",
+      "images": [
+        "wait-02-giraffe.jpg"
+      ]
     },
     {
       "img": "wait-03-bench-trio.jpg",
@@ -144,7 +192,10 @@ window.NOOR_CONTENT = {
       "story": "פינגווין-טייס, דוב עם צעיף וחזרזיר. הגיעו יחד, מסרבים להתפצל.",
       "bubble": "אנחנו באים ביחד או בכלל לא.",
       "stamp": "מחפשים בית ✶",
-      "adoptName": "חבורת הספסל"
+      "adoptName": "חבורת הספסל",
+      "images": [
+        "wait-03-bench-trio.jpg"
+      ]
     }
   ]
 };
