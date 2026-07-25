@@ -312,11 +312,17 @@
     const GH_DEFAULTS = { owner: 'ClicknMove24', repo: 'Nur', branch: 'main', token: '' };
     // gh-local.js (המחשב של נור בלבד, לא בגיטהאב) גובר על מה שנשמר בדפדפן
     const GH_LOCAL = window.NOOR_GH_LOCAL || {};
+    // מסיר רווחים ותווים נסתרים (סימוני כיווניות וכו') שנדבקים בהעתקה מצ'אטים
+    const ghClean = (s) => (s || '').replace(/[^\x21-\x7E]/g, '');
     ['owner', 'repo', 'branch', 'token'].forEach((k) => {
       const el = document.getElementById('gh-' + k);
-      el.value = GH_LOCAL[k] || gh[k] || GH_DEFAULTS[k];
-      gh[k] = el.value.trim();
-      el.addEventListener('input', () => { gh[k] = el.value.trim(); localStorage.setItem(GH_KEY, JSON.stringify(gh)); });
+      el.value = ghClean(GH_LOCAL[k] || gh[k] || GH_DEFAULTS[k]);
+      gh[k] = el.value;
+      el.addEventListener('input', () => {
+        const v = ghClean(el.value);
+        if (v !== el.value) el.value = v;
+        gh[k] = v; localStorage.setItem(GH_KEY, JSON.stringify(gh));
+      });
     });
     localStorage.setItem(GH_KEY, JSON.stringify(gh));
     const ghReady = () => gh.owner && gh.repo && gh.token;
