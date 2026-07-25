@@ -232,8 +232,8 @@
 
   <script>
     // ===== password gate =====
-    // הסיסמה הנוכחית: noor — לשנות: מחליפים את ה-hash למטה (SHA-256 של הסיסמה החדשה).
-    const PASS_HASH = '92a70799e19d8734fecfb8e59aa930e9f386f7645059a1f2f04eb8483c9b5f1d';
+    // לשינוי סיסמה: מחליפים את ה-hash למטה (SHA-256 של הסיסמה החדשה).
+    const PASS_HASH = 'd1847a6fb4ebf0f233b55dc2b998e44fa14c828b353f1b93df248c96ba4da753';
     const lock = document.getElementById('lock');
     async function sha256(s) {
       const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(s));
