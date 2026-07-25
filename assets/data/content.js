@@ -23,7 +23,7 @@ window.NOOR_CONTENT = {
     {
       "img": "",
       "name": "מרסל",
-      "story": "fcavvvvv",
+      "story": "נורררררררררררררררררררררררררר",
       "bubble": "אני לא ״חמודה״. אני רקדנית.",
       "status": "מתאוששת מהופעה",
       "owner": "עדי",
